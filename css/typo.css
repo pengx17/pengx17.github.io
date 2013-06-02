@@ -86,7 +86,7 @@ del {
 	text-decoration: line-through;
 }
 
-address, caption, cite, code, dfn, em, th, var {
+address, caption, cite, code, dfn, th, var {
 	font-style: normal;
 	font-weight: 400;
 }
@@ -259,5 +259,5 @@ h1, h2, h3, h4, h5, h6{
 
 /* TODO: 供着重号使用 */
 .typo-em, .typo em {
-	font-weight: 700;
+	font-weight: 500;
 }

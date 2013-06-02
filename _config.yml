@@ -5,13 +5,12 @@ auto: true
 pygments: true
 paginate: 4
 
-title : 隐匿于黑夜中的星
-tagline: 时间的回响，思维的残影
-author :
-  name : codepiano
-  email : anyexingchen999@qq.com
-  github : https://github.com/codepiano
-  twitter : http://twitter.com/anyexingchen
+title : 噌噌噌~！
+tagline: OpenCV OpenCL 
+author : 
+  name : pengx17
+  email : pengxiao@outlook.com
+  github : https://github.com/pengx17
 
 # The production_url is only used when full-domain names are needed
 # such as sitemap.txt 
@@ -21,7 +20,7 @@ author :
 # Else if you are pushing to username.github.io, replace with your username.
 # Finally if you are pushing to a GitHub project page, include the project name at the end.
 #
-production_url : http://codepiano.github.io
+production_url : http://pengx17.github.io
 
 # All Jekyll-Bootstrap specific configurations are namespaced into this hash
 #
@@ -78,7 +77,7 @@ codepiano :
   comments :
     provider : disqus
     disqus :
-      short_name : codepiano
+      short_name : pengxblog
    
   # Settings for analytics helper
   # Set 'provider' to the analytics provider you want to use.
@@ -87,7 +86,7 @@ codepiano :
   analytics :
     provider : google 
     google : 
-        tracking_id : 'UA-40934298-1'
+        tracking_id : 'UA-41397531-1'
 
   # Settings for sharing helper. 
   # Sharing is for things like tweet, plusone, like, reddit buttons etc.
