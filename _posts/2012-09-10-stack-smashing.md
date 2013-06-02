@@ -3,7 +3,7 @@ layout: post
 description:
 keywords: me
 title: strcmp引申的堆栈攻击问题
-categories: [cpp]
+categories: [learning, cpp]
 tags: [cpp]
 group: archive
 icon: code

@@ -3,7 +3,7 @@ layout: post
 keywords: OpenCV
 description: 利用OpenCV的颜色空间转换分割图片
 title: 一个OpenCV颜色空间转化的实例
-categories: [OpenCV, Beginner]
+categories: [learning, OpenCV]
 tags: [OpenCV, image segmentation, color conversion]
 group: archive
 icon: code

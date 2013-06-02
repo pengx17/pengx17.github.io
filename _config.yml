@@ -5,12 +5,13 @@ auto: true
 pygments: true
 paginate: 3
 
-title : 噌噌噌~！
+title : 进击的xp！
 tagline: OpenCV OpenCL 
 author : 
   name : pengx17
   email : pengxiao@outlook.com
   github : https://github.com/pengx17
+  weibo : http://www.weibo.com/1773498301
 
 # The production_url is only used when full-domain names are needed
 # such as sitemap.txt 
