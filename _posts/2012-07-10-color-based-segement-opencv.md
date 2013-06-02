@@ -8,11 +8,8 @@ tags: [OpenCV, image segmentation, color conversion]
 group: archive
 icon: code
 ---
-{% include codepiano/setup %}
-
 最近在OpenCV中文论坛上解答了个问题，大概问题是这样的，把下图中绿色的八卦部分抠出来：
-
-![Input]({{site:url}}/image/bagua_input.JPG)
+![Input](/image/bagua_input.JPG)
 
 可以看出问题解决方案很直接：遍历图片的每个像素，然后如果像素的颜色接近于绿色，保留此像素；反之遗弃，设值为0。解决思路跟photoshop的颜色选择功能类似。
 
