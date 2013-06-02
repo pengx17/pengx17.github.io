@@ -1,6 +1,6 @@
-# 个人博客
+# pengx17 个人博客
 
-[codepiano](codepiano.github.io)
+克隆自：[codepiano](codepiano.github.io)
 
 个人博客，转载请注明出处，保留所有权利。
 

@@ -8,12 +8,13 @@ tags: [chromium]
 group: archive
 icon: code
 ---
+
 由于工作需要我需要分析Chrome的图片解码流程。众所周知，Chrome是建立在开源的Chromium项目上的。最近的一个多月时间里，我基本把所有心思都放在Chromium上了，而且不得不说，学习并分析开源项目的代码对一个程序员的提高确实蛮大的。这篇博文我会记录一下学习过程中我遇到的一些问题，并分享学习中我所参考的几篇优秀的Chromium代码分析文章。
 
 ## 构建的一点吐槽和官方的方法文档摘录
 
 不看不知道，编译好的Chromium可执行文件虽然只有40+M，但打包好的源码文件包竟然高达3G之多（也许是我孤陋寡闻了，但是这个反差确实让我吓我一跳）。
-Chromium的构建方法就不多说了，推荐官方的[安装方法文档]{http://www.chromium.org/developers/how-tos/build-instructions-windows}。
+Chromium的构建方法就不多说了，推荐 [官方安装帮助文档](http://www.chromium.org/developers/how-tos/build-instructions-windows/index.html)。
 
 值得一提的是，一定要按照他所提供的办法严格的执行，不然可能会遇到各种编译错误。编译过程很可能会长达数小时之久 (在我的笔记本上构建了一整晚才完成)。为了加速编译过程，推荐使用多核CPU，64位windows，至少8G内存和60G硬盘空间，这些要求应该都不难达到。还有其他的几点：
 
@@ -33,11 +34,11 @@ Chromium的构建方法就不多说了，推荐官方的[安装方法文档]{htt
 **调试多进程的Chromium**，其实利用visual studio自带的工具就完全可以进行: 调试开始后，只要把已经运行起来的子进程附加到debugger上就可以了。具体操作是，开始调试，选择Tools > Attach to Process， 然后按住ctrl选择多个你想要调试的chrome.exe进程，附加到debugger上。另外，最好用debug构建的Chromium进行调试，不然release的编译器优化问题会产生一些很诡异的情况（比如取不到特定变量的值，跳过了一些被优化过的函数什么的。。。）
 附加进程到debugger的界面如图所示：
 
-![processes-chromium.PNG](image/processes-chromium.PNG)
+![processes-chromium.PNG](/image/processes-chromium.PNG)
 
 附加到debugger后，你可以在process窗口看到正在调试的进程:
 
-![debugger.PNG](image/debugger.PNG)
+![debugger.PNG](/image/debugger.PNG)
 
 另外，刚才说过，Chromium默认情况下是多进程模式（Process-per-site-instance，一个网站打开的所有页面属于同一进程）。你还可以提供运行时参数--single-process，强制让Chromium只用一个进程运行。这种模式可以通过传统的方式进行调试，但是这种模式属于实验性质的，可能会有这样和那样的bug出现，导致页面崩溃。
 
@@ -48,7 +49,7 @@ Chromium project官网还提供了多个调试办法，不过直接利用visual 
 下图是一个content_shell在windows下运行的效果。注意，这个东西处理HTTP请求很慢（content API并不包括完整的资源下载功能，Chrome的所有资源下载都是通过Browser进程负责的），最好只用来测试本地的页面。
 
 
-![content-shell.PNG](image/content-shell.PNG)
+![content-shell.PNG](/image/content-shell.PNG)
 
 ## 推荐阅读和引用来源
 

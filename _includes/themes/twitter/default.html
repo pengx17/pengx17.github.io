@@ -1,16 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:wb="http://open.weibo.com/wb">
+<html lang="en">
   <head>
     <meta charset="utf-8">
     <title>{{ page.title }}</title>
     {% if page.keywords %}<meta name="keywords" content="{{ page.keywords }}">{% endif %}
     {% if page.description %}<meta name="description" content="{{ page.description }}">{% endif %}
     <meta name="author" content="{{ site.author.name }}">
-	<!--必填-->
-	<meta property="og:type" content="article" />
-	<meta property="og:url" content="{{ page.url }}" />
-	<meta property="og:title" content="{{ page.title }}" />
-	<meta property="og:description" content="{{ page.description }}" />
 	<meta property="wb:webmaster" content="9519031f58fd2649" />
     <!-- Enable responsive viewport -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,7 +27,6 @@
     <!-- javascript files -->
     <script type="text/javascript" src="/js/jquery-2.0.0.min.js"></script>
     <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
-	<script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=" type="text/javascript" charset="utf-8"></script>
     <script type="text/javascript" src="/js/jquery.dataTables.min.js"></script>
     <script type="text/javascript" src="/js/datatables-bootstrap.js"></script>
     <script type="text/javascript" src="/js/codepiano.js"></script>
