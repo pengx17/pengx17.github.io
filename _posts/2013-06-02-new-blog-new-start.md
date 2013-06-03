@@ -2,7 +2,8 @@
 layout: post
 keywords: me
 description:
-title: New blog, new start，memories off
+title: New blog, new start, memories off
+tagline: 博客迁移！
 categories: [life]
 tags: [about me]
 group: archive

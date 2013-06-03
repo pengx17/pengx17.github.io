@@ -318,3 +318,9 @@ table#about-me a{
 hr.hr-strong {
   border-bottom: 5px groove #cfcfcf;
 }
+
+h2.title
+{
+  text-shadow: 2px 2px 2px #D0D0D0;
+}
+
