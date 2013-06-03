@@ -242,12 +242,16 @@ div.row {
 div.tooltip.right .tooltip-arrow {
   border-right-color: #1693A7;
 }
+div.tooltip.top .tooltip-arrow {
+  border-top-color: #1693A7;
+}
 
 div.tooltip-inner {
   font-size: 14px;
   color: #F3F3F3;
   background-color: #1693A7;
 }
+
 
 /* 归档和时间线页面列表样式 */
 ul.posts-list {
