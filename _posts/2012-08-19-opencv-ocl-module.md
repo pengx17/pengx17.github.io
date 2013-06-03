@@ -11,6 +11,8 @@ icon: code
 参加OpenCV的OpenCL模块（以下称OCL）移植工作已经有2个月了。这里我说移植而不是开发，是因为大部分OCL模块的函数是从已经很成熟的GPU模块直接移植过来的。因此，目前阶段OCL模块所支持的函数接口是GPU模块的一个子集，但由于运行平台差别问题，在某些函数上有些细微不同。
 OpenCV的版本控制系统已经转移到了git上面（见https://github.com/itseez/opencv），而最新的trunk的master分支也正式加入了OCL模块。今天逛OpenCV的开发者社区时，我发现有人提问在OpenCV库中如何进行使用OCL模块的函数；回答问题的同时，考虑到网上还没有针对OpenCV的OCL模块的资料，我决定写一篇文章简单介绍下OCL模块以方便开发者使用。
 
+* * *
+
 Introduction to OpenCL
 ======================
 对于OpenCL已经有所了解的，可以直接跳过这一节。
@@ -63,6 +65,7 @@ GPU模块的gpu::GpuMat类是一个封装了储存在在GPU显存的容器，而
 
 由于OpenCL的开发模式与CUDA非常类似，包括host API和device上运行的核函数语法，所以移植工作并不困难。移植过程中，我们保持了GPU模块的设计理念，并且在保证代码质量的基础上，尽可能的让OCL模块的函数跟上GPU模块的更新节奏。
 
+* * *
 
 Compile Latest OpenCV trunk repository
 ======================================
@@ -84,6 +87,8 @@ https://github.com/itseez/opencv
 
 上面步骤完成后，就可以打开OpenCL.sln文件编译OpenCV了~
 
+
+* * *
 
 Using OCL module
 ================
