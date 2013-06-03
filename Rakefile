@@ -9,7 +9,7 @@ CONFIG = {
   'themes' => File.join(SOURCE, "_includes", "themes"),
   'layouts' => File.join(SOURCE, "_layouts"),
   'posts' => File.join(SOURCE, "_posts"),
-  'post_ext' => "html",
+  'post_ext' => "md",
   'theme_package_version' => "0.1.0"
 }
 
@@ -70,7 +70,6 @@ task :post do
     post.puts 'group: archive'
     post.puts 'icon: file-alt'
     post.puts "---"
-    post.puts "{% include codepiano/setup %}"
   end
 end # task :post
 
