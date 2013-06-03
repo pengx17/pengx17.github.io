@@ -27,11 +27,11 @@ Chromium的构建方法就不多说了，推荐 [官方安装帮助文档](http:
 
 ## Visual Studio中调试Chromium浅谈
 
-分析Chromium源码，为了快速的在代码海洋中找到自己所需要的部分，不可避免的要调试的Chromium项目。比如说，我们想知道，Chromium是如何从页面上下载一张图片，经过渲染，最后显示在页面上的呢？这个流程实际上的要比看起来复杂不少：一个页面内的WebKit分析出DOM树，发现一个<img>元素里的图片需要显示；WebKit发送一个URL下载的IPC消息给主进程Browser Process，然后WebKit根据返回数据的MIME类型标签进行解析，发现这个资源是个图片，再根据编码方式调用相应的WebCore::ImageDecoder类进行解码，最后还要进行一系列的渲染，把需要绘制的东西交给RenderWidget，这样我们才能看到图片。这个过程如果单纯的去浏览代码找到对应的类和方法调用关系，效率低下不说，还很容易出错，这时候我们就需要在Chromium中进行代码调试和追踪了。
+分析Chromium源码，为了快速的在代码海洋中找到自己所需要的部分，不可避免的要调试的Chromium项目。比如说，我们想知道，Chromium是如何从页面上下载一张图片，经过渲染，最后显示在页面上的呢？这个流程实际上的要比看起来复杂不少：一个页面内的WebKit分析出DOM树，发现一个`<img>`元素里的图片需要显示；WebKit发送一个URL下载的IPC消息给主进程Browser Process，然后WebKit根据返回数据的MIME类型标签进行解析，发现这个资源是个图片，再根据编码方式调用相应的WebCore::ImageDecoder类进行解码，最后还要进行一系列的渲染，把需要绘制的东西交给RenderWidget，这样我们才能看到图片。这个过程如果单纯的去浏览代码找到对应的类和方法调用关系，效率低下不说，还很容易出错，这时候我们就需要在Chromium中进行代码调试和追踪了。
 
 有个关键问题，Chromium不同于普通的单进程程序，默认情况下它是多进程模式的。比如，新打开的只有一个首页的Chrome程序，至少有3个相关进程，分别是Browser进程（管理所有的UI框架，全局消息传递，资源下载等等），GPU进程（提供WebGL渲染，绕过沙盒机制调用3D API），和渲染进程Renderer（包括首页响应用户操作的content和负责渲染的WebKit实例等等），甚至还可能还有其他的进程外运行的插件进程，等等。具体的Chrome进程模型还有不同进程之间如何用IPC消息进行交互的，请参考本文推荐的阅读源。如果直接通过visual studio进行调试，只有主进程（Browser）被调试，而负责渲染的renderer进程则像是其他程序一样，表示一切跟我没有关系。最直观的表现就是，使用Chrome浏览器时，Windows任务管理器中会出现多个chrome.exe进程实例。
 
-**调试多进程的Chromium**，其实利用visual studio自带的工具就完全可以进行: 调试开始后，只要把已经运行起来的子进程附加到debugger上就可以了。具体操作是，开始调试，选择Tools > Attach to Process， 然后按住ctrl选择多个你想要调试的chrome.exe进程，附加到debugger上。另外，最好用debug构建的Chromium进行调试，不然release的编译器优化问题会产生一些很诡异的情况（比如取不到特定变量的值，跳过了一些被优化过的函数什么的。。。）
+**调试多进程的Chromium**，其实利用visual studio自带的工具就完全可以进行: 调试开始后，只要把已经运行起来的子进程附加到debugger上就可以了。具体操作是，开始调试，选择`Tools > Attach to Process`， 然后按住ctrl选择多个你想要调试的chrome.exe进程，附加到debugger上。另外，最好用debug构建的Chromium进行调试，不然release的编译器优化问题会产生一些很诡异的情况（比如取不到特定变量的值，跳过了一些被优化过的函数什么的。。。）
 附加进程到debugger的界面如图所示：
 
 ![processes-chromium.PNG](/image/processes-chromium.PNG)

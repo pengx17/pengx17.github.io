@@ -19,7 +19,7 @@
     <link href="//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css" rel="stylesheet">
     <link href="/css/typo.css" rel="stylesheet">
     <link href="/css/style.css?body=1" rel="stylesheet" type="text/css" media="all">
-    <link href="/css/solarized.css" rel="stylesheet" type="text/css" media="all">
+    <link href="/css/default.css" rel="stylesheet" type="text/css" media="all">
     <link href="/css/datatables-bootstrap.css" rel="stylesheet">
     <link href="/css/codepiano.css" rel="stylesheet">
 
@@ -56,8 +56,10 @@
           </div>
           <div class="span8">
             <a class="brand" href="{{ HOME_PATH }}">
-              <span class="site-author"> {{ site.author.name }} </span>
-              <span class="site-title"> /* {{ site.title }} */ </span>
+              <h2>
+                  <span class="site-author"> {{ site.author.name }} </span>
+                  <small><span class="site-title"> {{ site.title }} </span></small>
+              </h2>
             </a>
             <ul class="nav">
               {% assign pages_list = site.pages %}

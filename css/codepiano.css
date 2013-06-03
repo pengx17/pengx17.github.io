@@ -61,9 +61,16 @@ html, body, div.wrapper {
 /* 自定义高亮样式 */
 .highlight pre,code {
   font-size: 15px;
-  background-color: #002B36;
-  color:#93A1A1;
+  background-color: #ECECEC;
+  color: #145201;
 }
+
+/* 自定义高亮样式 */
+pre code {
+  font-size: 15px;
+  color: #145201;
+}
+
 
 blockquote {
   font-size: 15px;
@@ -114,12 +121,10 @@ ul.tag_box > li:first-child {
 
 /* 标题栏文字样式 */
 .site-title {
-  font-size: 14px;
   color: #1B813F;
 }
 
 .site-author {
-  font-size: 28px;
   color: #169FDE;
 }
 
@@ -268,6 +273,11 @@ span.post-right-info {
   color: #BBBBBB;
 }
 
+/* 覆盖bootstrap默认的li格式 */
+li {
+line-height: 25px;
+}
+
 
 /* 时间锚点的样式 */
 ul.time-list {
@@ -301,4 +311,8 @@ table#about-me td{
 
 table#about-me a{
   color: #1077BC;
+}
+
+hr.hr-strong {
+  border-bottom: 5px groove #cfcfcf;
 }
