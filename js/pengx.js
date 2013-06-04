@@ -17,10 +17,6 @@
     if($('#post-data')[0]){
       tableReference = $('#post-data').dataTable(datatablesConfig);
     }
-    /* 初始化tooltip */
-    if($('#support a')[0]){
-      $('#support a').tooltip(tooltipConfig);
-    }
 
     /* 目录页导航 */
     var url = window.location.href;
@@ -53,14 +49,7 @@
       } );
     }
   });
-
 }(window.jQuery);
-
-/* 切换技术支持列表的样式 */
-function toggleSupport(){
-  $('#support').toggleClass('dispear').toggleClass('show');
-  return false;
-}
 
 /* datatables设置 */
 datatablesConfig = {
