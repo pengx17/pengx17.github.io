@@ -97,7 +97,6 @@ $(function () {
   这应该就是所有要做的工作了。/dance
 </div>
 
-
 ---
 
 <h3 id="reference">参考文档</h3>
@@ -106,3 +105,4 @@ $(function () {
 1. [Fixing pagination on windows](https://github.com/mojombo/jekyll/pull/1058)
 1. [Jekyll遭遇编码问题](http://log.medcl.net/item/2012/04/jekyll-encounter-encoding-problems/)
 1. [RubyGem淘宝镜像](http://ruby.taobao.org/)
+1. [像黑客一样写博客——Jekyll入门](http://www.soimort.org/posts/101/) <span class="label label-info">推荐阅读</span>

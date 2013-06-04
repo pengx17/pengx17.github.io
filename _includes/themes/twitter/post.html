@@ -16,6 +16,7 @@
     <div class="content">
       {{ content }}
     </div>
+    <div class="weibo-share">
     <script type="text/javascript" charset="utf-8">
     (function(){
       var _w = 24 , _h = 24;
@@ -36,7 +37,8 @@
       }
       document.write('<iframe allowTransparency="true" frameborder="0" scrolling="no" src="http://service.weibo.com/staticjs/weiboshare.html?' + temp.join('&') + '" width="'+ _w+'" height="'+_h+'"></iframe>')
     })()
-    </script> 
+    </script>
+    </div>
     {% unless page.tags == empty %}
     <ul class="tag_box inline">
       <li><i class="icon-tags"></i></li>

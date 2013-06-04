@@ -22,6 +22,7 @@ title: pengx17
   <div class="archive">
     {{ post.content }}
   </div>
+  <div class="weibo-share">
   <script type="text/javascript" charset="utf-8">
     (function(){
       var _w = 24 , _h = 24;
@@ -42,9 +43,11 @@ title: pengx17
       }
       document.write('<iframe allowTransparency="true" frameborder="0" scrolling="no" src="http://service.weibo.com/staticjs/weiboshare.html?' + temp.join('&') + '" width="'+ _w+'" height="'+_h+'"></iframe>')
     })()
-  </script></div>
+  </script>
+  </div>
+</div>
   {% endfor %}
-
+  
   <!-- 分页页码展示 -->
   <div id="post-pagination" class="pagination pagination-centered">
     <ul>
