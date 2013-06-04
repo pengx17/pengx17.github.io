@@ -6,7 +6,12 @@ title: pengx17
 <!-- 按照分页插入博客文章 -->
 {% for post in paginator.posts %}
 <div class="well typo">
-  <h2 class="title"><a href="{{ post.url }}">{{ post.title }}</a></h2>
+  <h2 class="title"><a href="{{ post.url }}">
+  {{ post.title }}
+  {% if post.tagline %}
+    <small>{{ post.tagline }}</small>
+  {% endif %}
+  </a></h2>
   <div class="post_info">
   {% unless post.categories == empty %}
   <ul class="tag_box inline">
