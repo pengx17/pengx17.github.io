@@ -6,7 +6,7 @@ title: Chrome学习整理
 categories: [learning, chromium]
 tags: [chromium]
 group: archive
-icon: code
+icon: book
 ---
 
 由于工作需要我需要分析Chrome的图片解码流程。众所周知，Chrome是建立在开源的Chromium项目上的。最近的一个多月时间里，我基本把所有心思都放在Chromium上了，而且不得不说，学习并分析开源项目的代码对一个程序员的提高确实蛮大的。这篇博文我会记录一下学习过程中我遇到的一些问题，并分享学习中我所参考的几篇优秀的Chromium代码分析文章。

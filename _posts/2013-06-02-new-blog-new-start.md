@@ -7,7 +7,7 @@ tagline: 博客迁移！
 categories: [life]
 tags: [about me]
 group: archive
-icon: code
+icon: rocket
 reason: 彻底斩断一年多的单相思后
 ---
 

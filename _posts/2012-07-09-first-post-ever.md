@@ -6,7 +6,7 @@ title: 开篇
 categories: [life]
 tags: [about me]
 group: archive
-icon: code
+icon: coffee
 ---
 
 没想到我也有写技术类博客这一天，虽然是被人建议开的。
