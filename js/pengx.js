@@ -48,6 +48,7 @@
         tableReference.fnFilter( this.value, 2);
       } );
     }
+    $('.error-404').tooltip({placement: 'top'});
   });
 }(window.jQuery);
 
