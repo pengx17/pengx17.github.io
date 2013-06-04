@@ -326,3 +326,17 @@ h2.title
   text-shadow: 2px 2px 2px #D0D0D0;
 }
 
+.weibo-share {
+  opacity:0.1;
+  float: right;
+  position: relative;
+  margin: -1.4em;
+}
+
+.weibo-share:hover {
+  opacity:1;
+}
+
+.post-full {
+    position: relative;
+}
