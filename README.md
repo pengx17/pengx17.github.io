@@ -1,6 +1,6 @@
 # pengx17 个人博客
 
-克隆自：[codepiano](codepiano.github.io)
+克隆自：[pengx](pengx.github.io)
 
 ***
 以下内容Copy自原作者博客README.md文件。

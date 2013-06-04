@@ -26,7 +26,7 @@ production_url : http://pengx17.github.io
 
 # All Jekyll-Bootstrap specific configurations are namespaced into this hash
 #
-codepiano :
+pengx :
   version : 0.3.0
 
   # All links will be namespaced by BASE_PATH if defined.

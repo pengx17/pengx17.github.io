@@ -26,14 +26,14 @@
     <link href="/css/style.css?body=1" rel="stylesheet" type="text/css" media="all">
     <link href="/css/syntax.css" rel="stylesheet" type="text/css" media="all">
     <link href="/css/datatables-bootstrap.css" rel="stylesheet">
-    <link href="/css/codepiano.css" rel="stylesheet">
+    <link href="/css/pengx.css" rel="stylesheet">
 
     <!-- javascript files -->
     <script type="text/javascript" src="/js/jquery-2.0.0.min.js"></script>
     <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="/js/jquery.dataTables.min.js"></script>
     <script type="text/javascript" src="/js/datatables-bootstrap.js"></script>
-    <script type="text/javascript" src="/js/codepiano.js"></script>
+    <script type="text/javascript" src="/js/pengx.js"></script>
     <script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=2668249176" type="text/javascript" charset="utf-8"></script>
     
     
@@ -46,8 +46,8 @@
     -->
 
     <!-- atom & rss feed -->
-    <link href="{{ BASE_PATH }}{{ site.codepiano.atom_path }}" type="application/atom+xml" rel="alternate" title="Sitewide ATOM Feed">
-    <link href="{{ BASE_PATH }}{{ site.codepiano.rss_path }}" type="application/rss+xml" rel="alternate" title="Sitewide RSS Feed">
+    <link href="{{ BASE_PATH }}{{ site.pengx.atom_path }}" type="application/atom+xml" rel="alternate" title="Sitewide ATOM Feed">
+    <link href="{{ BASE_PATH }}{{ site.pengx.rss_path }}" type="application/rss+xml" rel="alternate" title="Sitewide RSS Feed">
 
     <script type="text/javascript">
     </script>
@@ -71,7 +71,7 @@
             <ul class="nav">
               {% assign pages_list = site.pages %}
               {% assign group = 'navigation' %}
-              {% include codepiano/navigation_list %}
+              {% include pengx/navigation_list %}
             </ul>
           </div>
           <div class="span2">
@@ -93,6 +93,6 @@
     </div>
 
     </div>
-    {% include codepiano/analytics %}
+    {% include pengx/analytics %}
   </body>
 </html>

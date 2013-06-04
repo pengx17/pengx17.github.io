@@ -1,0 +1,8 @@
+{% if site.safe and site.pengx.sharing.provider and page.pengx.sharing != false %}
+
+{% case site.pengx.sharing.provider %}
+{% when "custom" %}
+  {% include custom/sharing %}
+{% endcase %}
+
+{% endif %}

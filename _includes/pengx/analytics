@@ -1,0 +1,14 @@
+{% if site.safe and site.pengx.analytics.provider and page.pengx.analytics != false %}
+
+{% case site.pengx.analytics.provider %}
+{% when "google" %}
+  {% include pengx/analytics-providers/google %}
+{% when "getclicky" %}
+  {% include pengx/analytics-providers/getclicky %}
+{% when "mixpanel" %}
+  {% include pengx/analytics-providers/mixpanel %}
+{% when "custom" %}
+  {% include custom/analytics %}
+{% endcase %}
+
+{% endif %}
