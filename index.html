@@ -5,6 +5,7 @@ title: pengx17
 {% include codepiano/setup %}
 <!-- 按照分页插入博客文章 -->
 {% for post in paginator.posts %}
+<div class="well typo">
   <h2 class="title"><a href="{{ post.url }}">{{ post.title }}</a></h2>
   <div class="post_info">
   {% unless post.categories == empty %}
@@ -41,8 +42,7 @@ title: pengx17
       }
       document.write('<iframe allowTransparency="true" frameborder="0" scrolling="no" src="http://service.weibo.com/staticjs/weiboshare.html?' + temp.join('&') + '" width="'+ _w+'" height="'+_h+'"></iframe>')
     })()
-  </script>
-  <hr class="hr-strong"/>
+  </script></div>
   {% endfor %}
 
   <!-- 分页页码展示 -->
