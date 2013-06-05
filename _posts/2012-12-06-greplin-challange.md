@@ -7,10 +7,13 @@ categories: [learning, prolog]
 tags: [prolog]
 group: archive
 icon: code
+tldr: true
 ---
 去年在Imperial College学习中我选修了非常有趣的Prolog课程。从名字（Programming in Logic）不难看出这是一个专门为人工智能设计的语言；而且跟传统的过程式语言（如C++）和函数式编程语言（如Haskell）思考的方式完全不同，Prolog是一种声明式的逻辑编程语言。
 
 如Wiki中所说，"有别于一般的过编程语言，prolog的程式是基于谓词逻辑的理论。最基本的写法是定立物件与物件之间的关系，之后可以用询问目标的方式来查询各种物件之间的关系。系统会自动进行匹配及回溯，找出所询问的答案。" 这句话很好，我直接复制过来了。 Prolog解决问题的方式非常巧妙。鉴于篇幅问题，读者有兴趣可以去查找其他更详尽的学习资料查看Prolog具体的编程写法。
+
+<!-- more -->
 
 这里举一个很简单的例子，修改自wiki:
 

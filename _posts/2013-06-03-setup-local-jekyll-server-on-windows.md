@@ -23,6 +23,8 @@ $(function () {
 })
 </script>
 
+<!-- more -->
+
 ***
 
 **首先**, 从官网上下载`Ruby on Windows`，`Ruby DevKit`和`Python 2.7`。

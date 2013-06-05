@@ -10,6 +10,8 @@ icon: code
 ---
 今天在OpenCL的开发过程中遇到了对浮点数的原子运算(atomic operations)的问题。OpenCL spec中只提供了对于32位或64位整数的原子运算；对于浮点数，我们就得另辟蹊径了。
 
+<!-- more -->
+
 因为OpenCL在语法上跟CUDA非常类似，我们可以参考一下[CUDA C Programming Guide](http://developer.nvidia.com/cuda/nvidia-gpu-computing-documentation)上面关于浮点数原子加法的例子，如下：
 
 {% highlight c++ %}

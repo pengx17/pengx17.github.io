@@ -28,6 +28,8 @@ _"红花当然配绿叶. 这一辈子谁来陪. 渺渺茫茫来又回. 往日情
 我捉摸着，是到了继续写博客的时候了。
 为了督促自己行动起来，我决定把博客迁移到 <del>牛逼烘烘的</del> [GitHub Pages](http://pages.github.com/, "GitHub Pages")上。
 
+<!-- more -->
+
 之前的博客是用的[CSDN在线博客](http://blog.csdn.net/pengx17)服务。我是最近才知道了静态博客系统这种看起来很Geek的玩意儿。
 [网上](http://www.cnblogs.com/cuxnil/archive/2013/01/08/2850458.html)提到了几种其他的流行的博客系统，
 发现GitHub Pages上面原生支持的是Jekyll，我一拍脑门，就用它得了。

@@ -7,10 +7,13 @@ categories: [learning, opencv]
 tags: [life, cpp, opencv, photoshop]
 group: archive
 icon: code
+tldr: true
 ---
 某位朋友在实验中遇到一个任务，具体来说，就是给定一张含有细胞组织采样的显微图片，手动用photoshop去除这张图片的灰色背景，从而获得背景比较干净的图片方便细胞计数 。原始实验图片如下：
 
 ![cells-origin.PNG](/image/cells-origin.PNG)
+
+<!-- more -->
 
 这张图片中图片有明显的灰蒙蒙的背景噪声，我们的目的就是想把背景的灰色信息扔掉。
 

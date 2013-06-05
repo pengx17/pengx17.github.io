@@ -5,6 +5,8 @@ auto: true
 pygments: true
 paginate: 3
 
+excerpt_separator: <!-- more -->
+
 title : 进击的xp!
 tagline: OpenCV OpenCL 
 author : 

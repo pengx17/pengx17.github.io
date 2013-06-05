@@ -10,6 +10,8 @@ icon: code
 ---
 我们先来看下面的代码 （[来源于"12个有趣的C语言问答"](http://www.oschina.net/question/213217_69069)）:
 
+<!-- more -->
+
 {% highlight c++ %}
 #include <stdio.h>  
   
@@ -39,6 +41,7 @@ int main(int argc, char *argv[])
     return 0;  
 }  
 {% endhighlight %}
+
 
 这段关于密码验证的代码简单明了，除却argv\[1\]为空（用户没有给出参数）可能导致的程序崩溃问题，还有一个致命缺陷。
 

@@ -5,6 +5,7 @@ description: Introduction to OpenCV's OpenCL module
 title: 使用OpenCV的OpenCL(ocl)模块
 categories: [HPC, OpenCV, OpenCL]
 tags: [OpenCL, CUDA, OpenCV, featured]
+featured: true
 group: archive
 icon: code
 tldr: true
@@ -12,6 +13,8 @@ tldr: true
 参加OpenCV的OpenCL模块（以下称OCL）移植工作已经有2个月了。这里我说移植而不是开发，是因为大部分OCL模块的函数是从已经很成熟的GPU模块直接移植过来的。因此，目前阶段OCL模块所支持的函数接口是GPU模块的一个子集，但由于运行平台差别问题，在某些函数上有些细微不同。
 
 OpenCV的版本控制系统已经转移到了git上面（见[OpenCV on GitHub](https://github.com/itseez/opencv)），而最新的trunk的master分支也正式加入了OCL模块。今天逛OpenCV的开发者社区时，我发现有人提问在OpenCV库中如何进行使用OCL模块的函数；回答问题的同时，考虑到网上还没有针对OpenCV的OCL模块的资料，我决定写一篇文章简单介绍下OCL模块以方便开发者使用。
+
+<!-- more -->
 
 <div class="alert alert-block">
   <strong>Warning!</strong>
