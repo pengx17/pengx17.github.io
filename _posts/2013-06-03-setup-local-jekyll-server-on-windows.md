@@ -7,6 +7,7 @@ categories: [learning, jekyll]
 tags: [jekyll]
 group: archive
 icon: file-alt
+featured: true
 ---
 
 为了本地调试搭建好的博客，我们得在当前机器上安装一个Jekyll服务，在本地生成完毕后再把更新push到github上面。
