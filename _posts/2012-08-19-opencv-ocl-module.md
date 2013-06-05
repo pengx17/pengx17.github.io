@@ -4,21 +4,29 @@ keywords: me
 description: Introduction to OpenCV's OpenCL module
 title: 使用OpenCV的OpenCL(ocl)模块
 categories: [HPC, OpenCV, OpenCL]
-tags: [OpenCL, CUDA, OpenCV]
+tags: [OpenCL, CUDA, OpenCV, featured]
 group: archive
-icon: book
+icon: code
+tldr: true
 ---
 参加OpenCV的OpenCL模块（以下称OCL）移植工作已经有2个月了。这里我说移植而不是开发，是因为大部分OCL模块的函数是从已经很成熟的GPU模块直接移植过来的。因此，目前阶段OCL模块所支持的函数接口是GPU模块的一个子集，但由于运行平台差别问题，在某些函数上有些细微不同。
-OpenCV的版本控制系统已经转移到了git上面（见https://github.com/itseez/opencv），而最新的trunk的master分支也正式加入了OCL模块。今天逛OpenCV的开发者社区时，我发现有人提问在OpenCV库中如何进行使用OCL模块的函数；回答问题的同时，考虑到网上还没有针对OpenCV的OCL模块的资料，我决定写一篇文章简单介绍下OCL模块以方便开发者使用。
+
+OpenCV的版本控制系统已经转移到了git上面（见[OpenCV on GitHub](https://github.com/itseez/opencv)），而最新的trunk的master分支也正式加入了OCL模块。今天逛OpenCV的开发者社区时，我发现有人提问在OpenCV库中如何进行使用OCL模块的函数；回答问题的同时，考虑到网上还没有针对OpenCV的OCL模块的资料，我决定写一篇文章简单介绍下OCL模块以方便开发者使用。
+
+<div class="alert alert-block">
+  <strong>Warning!</strong>
+  由于OpenCV的更新非常频繁，以下内容可能随着时间推移在新版本中并不适用。我会尽量根据需要更新本文档。请参考<a href="https://github.com/pengx17/pengx17.github.io/commits/master/_posts/2012-08-19-opencv-ocl-module.md">查看本文修改历史</a>。
+</div>
 
 * * *
 
 Introduction to OpenCL
 ======================
-对于OpenCL已经有所了解的，可以直接跳过这一节。
+<small>对于OpenCL已经有所了解的，可以直接跳过这一节。</small>
 
-_"OpenCL是用于编写在异构平台上运行程序的框架，所谓异构平台，一般情况我们指GPU和CPU两种处理器混合的平台。OpenCL由一门用于编写kernels （在OpenCL设备上运行的函数）的语言（基于C99）和一组用于定义并控制平台的API组成。"_
-OpenCL可以实现GPGPU（General-purpose computing on graphics processing units, 通用图形处理器）运算, _"(GPGPU)是一种利用处理图形任务的GPU来计算原本由CPU处理的通用计算任务。这些通用计算常常与图形处理没有任何关系。由于现代图形处理器强大的并行处理能力和可编程流水线，令流处理器可以处理非图形数据。特别在面对单指令流多数据流（SIMD），且数据处理的运算量远大于数据调度和传输的需要时，通用图形处理器在性能上大大超越了传统的中央处理器应用程序。"_ -- 摘自wikipedia
+> "OpenCL是用于编写在异构平台上运行程序的框架，所谓异构平台，一般情况我们指GPU和CPU两种处理器混合的平台。OpenCL由一门用于编写kernels （在OpenCL设备上运行的函数）的语言（基于C99）和一组用于定义并控制平台的API组成。"
+OpenCL可以实现[GPGPU]((http://en.wikipedia.org/wiki/GPGPU)（General-purpose computing on graphics processing units, 通用图形处理器）运算, 
+> "(GPGPU)是一种利用处理图形任务的GPU来计算原本由CPU处理的通用计算任务。这些通用计算常常与图形处理没有任何关系。由于现代图形处理器强大的并行处理能力和可编程流水线，令流处理器可以处理非图形数据。特别在面对单指令流多数据流（SIMD），且数据处理的运算量远大于数据调度和传输的需要时，通用图形处理器在性能上大大超越了传统的中央处理器应用程序。" <small>摘自wikipedia</small>
 
 简单解释一下这段话中几个重点：
 
@@ -28,18 +36,26 @@ OpenCL可以实现GPGPU（General-purpose computing on graphics processing units
 
 **OpenCL由在OpenCL设备上运行的kernel函数语言和控制平台的API组成**
 
-OpenCL包含两个主要部分：device和host。在CPU和GPU组成的异构平台中，我们一般把运行核函数的GPU处理器部分称为device，把控制平台API的CPU称为host。相应的，把host上的内存（就是内存）称为host memory；而把device上的内存（GPU显存）称为device memory或者device buffer。在OpenCV里，我们把这两种内存封装为cv::Mat和cv::ocl::oclMat结构。
+OpenCL包含两个主要部分：device和host。在CPU和GPU组成的异构平台中，我们一般把运行核函数的GPU处理器部分称为device，把控制平台API的CPU称为host。相应的，把host上的内存（就是内存）称为host memory；而把device上的内存（例如GPU显存）称为device memory或者device buffer。在OpenCV里，我们把这两种内存封装为`cv::Mat`和`cv::ocl::oclMat`结构。
+
+<div class="alert alert-info">
+  <strong>Notice!</strong> 
+以下文章中有提到内存和显存。如果没有特殊指出的话，内存是指host的传统意义的内存，显存指的是设备的储存（并不一定是显卡上的显存，也有可能是映射到host上的储存。）
+</div>
 
 
 **数据调度和传输**
 
-OpenCV的OCL模块中，在GPU上进行运算之前我们必须把内存转成GPU可以直接调用的显存。而在GPU上的运算结束后，我们还需要将在GPU显存上的数据转移到CPU可用的内存上。这两个操作在oclMat中定义为两个成员函数，分别为oclMat::download和oclMat::upload。由于这两个数据传输操作受PCI总线宽带的限制，在实际应用中应尽量减少数据传输，把尽可能多的运算在gpu device上计算完成后，再把数据传回cpu host，以达到最大的数据吞吐量。
+OpenCV的OCL模块中，在GPU上进行运算之前我们必须把内存转成GPU可以直接调用的显存。而在GPU上的运算结束后，我们还需要将在GPU显存上的数据转移到CPU可用的内存上。这两个操作在oclMat中定义为两个成员函数，分别为`oclMat::download`和`oclMat::upload`。由于这两个数据传输操作受PCI总线宽带的限制，在实际应用中应尽量减少数据传输，把尽可能多的运算在gpu device上计算完成后，再把数据传回cpu host，以达到最大的数据吞吐量。
 
+我们正在考虑在未来版本中加入对于通过设备内存映射，直接让设备读取主机内存的方式。这种方法可能对于AMD APU或者Intel Sandy Bridge集显来说有先天优势。
+
+***
 
 OpenCV's CUDA Module
 --------------------
 
-介绍OpenCL模块前，不得不先提一下OpenCV的GPU（以下特指CUDA模块）模块。由于OCL模块是直接移植自GPU的代码，所以我们可以先来了解下他的前身。
+介绍OpenCL模块前，不得不先提一下OpenCV的GPU（以下特指CUDA模块）模块。由于OCL模块有很大一部分直接移植自GPU的代码，所以我们可以先来了解下他的前身。
 
 来源：[http://opencv.org/platforms/cuda.html](http://opencv.org/platforms/cuda.html)
 
@@ -61,7 +77,7 @@ OpenCV的GPU模块还加入了CUDA第三方函数的支持，如NVIDIA NPP和CUF
 
 GPU模块被设计成host上能调用的CUDA API扩展集。这个设计模式让开发者能明确的控制数据在CPU和GPU的内存间的传输。尽管用户必须要多写一点代码来开始使用GPU模块，但是这个过程是灵活的，并且允许用户对GPU数据控制的代码进行优化。
 
-GPU模块的gpu::GpuMat类是一个封装了储存在在GPU显存的容器，而他的接口与CPU的cv::Mat类非常相似。所有的GPU模块函数以GpuMat作为输入输出函数，这样的设计允许多个GPU算法在数据不下载到CPU内存就能完全调用，增加了数据吞吐效率。并且GPU函数接口也尽可能的和CPU函数保持移植，这样熟悉OpenCV CPU操作的开发者能直接转移到GPU模块上进行开发。
+GPU模块的`gpu::GpuMat`类是一个封装了储存在在GPU显存的容器，而他的接口与CPU的`cv::Mat`类非常相似。所有的GPU模块函数以`GpuMat`作为输入输出函数，这样的设计允许多个GPU算法在数据不下载到CPU内存就能完全调用，增加了数据吞吐效率。并且GPU函数接口也尽可能的和CPU函数保持移植，这样熟悉OpenCV CPU操作的开发者能直接转移到GPU模块上进行开发。
 
 由于OpenCL的开发模式与CUDA非常类似，包括host API和device上运行的核函数语法，所以移植工作并不困难。移植过程中，我们保持了GPU模块的设计理念，并且在保证代码质量的基础上，尽可能的让OCL模块的函数跟上GPU模块的更新节奏。
 
@@ -81,11 +97,11 @@ https://github.com/itseez/opencv
 
 下载完成后，你还需要一个新的OpenCL SDK。以AMD显卡系列为例，APP SDK v2.7下载地址http://developer.amd.com/sdks/amdappsdk/downloads/pages/default.aspx
 
-你还需要CMake2.8版本和python来生成Visual Studio的sln项目。cmake的使用方法就不多说了，网上有很详细的教程。
+你还需要CMake2.8版本来生成Visual Studio的sln项目。cmake的使用方法就不多说了，网上有很详细的教程。
 
-应注意的是在用CMake对OpenCV项目进行配置时，要手动打开WITH_OPENCL选项，这个是默认关闭的。如果一切正常的话，在CMake的命令行输出终究会提示找到OpenCL的静态库和include文件夹；如果提示没有找到的话，需要自己手动在cmake中找到这两个选项，添加include文件夹和动态库路径。
+应注意的是在用CMake对OpenCV项目进行配置时，要手动打开WITH_OPENCL选项，这个是默认关闭的。如果一切正常的话，在CMake的命令行输出终究会提示找到OpenCL的静态库和include文件夹；如果提示没有找到的话，需要自己手动在cmake中找到这两个选项（分别是`OPENCL_INCLUDE_DIR`和`OPENCL_LIBRARY`），添加include文件夹和静态库文件(OpenCL.lib)路径。
 
-上面步骤完成后，就可以打开OpenCL.sln文件编译OpenCV了~
+上面步骤完成后，就可以打开OpenCL.sln文件编译OpenCV了。
 
 
 * * *
@@ -93,8 +109,9 @@ https://github.com/itseez/opencv
 Using OCL module
 ================
 
-使用ocl模块的方法跟gpu非常类似（本来就是无脑无缝移植什么的）。调用ocl模块的任何模块前，<del>必须明确的调用一下ocl名字空间下的getDevice函数</del>。
-目前官网的版本**(2.4.6)**已经可以隐式的初始化OpenCL环境了。
+使用ocl模块的方法跟gpu非常类似<del>（本来就是无脑移植什么的）</del>。调用ocl模块的任何模块前，必须明确的调用一下ocl名字空间下的`getDevice`函数，初始化OpenCL环境。
+
+为了跟gpu模块使用方式保持一致，目前官网的版本(2.4.6)的部分函数已经可以隐式的初始化OpenCL环境了，例如`ocl::Canny`。调用任意OpenCV函数后，会自动寻找环境中的OpenCL设备，并把找到的第一个加入全局中。
 
 {% highlight c++ %}
 
@@ -102,43 +119,47 @@ vector<ocl::Info> info;
 ocl::getDevice(info); 
 {% endhighlight %}
 
-getDevice函数会在你电脑中寻找是否有合适的含有GPU的OpenCL平台，并且返回可用的device设备数量，并生成并注册可用的上下文(cl_context)和一个命令执行队列。
-上文提到，所有的ocl模块调用的矩阵类型格式是oclMat。oclMat跟Mat结构类似，包含大部分的成员函数和成员变量，但是最重要的是封装了OpenCL的buffer数据(cl_mem)并控制他的内存释放与传输。
+`getDevice`函数会在你电脑中寻找是否有合适的含有GPU的OpenCL平台，并且返回可用的device设备数量。默认情况下，将会把找到的第一个平台的第一个设备的上下文`cl_context`和一个命令执行队列`cl_command_queue`加入到全局环境中的Context()。你还可以调用`ocl::setDevice()`手动选择使用的OpenCL设备。
 
-把一个Mat转化成oclMat非常简单，你可以调用oclMat的构造函数：
+上文提到，所有的`ocl`模块调用的矩阵类型格式是`oclMat`。`oclMat`跟`Mat`结构类似，包含大部分的成员函数和成员变量，但是最重要的是封装了OpenCL的buffer数据(`cl_mem`)并控制他的内存释放与传输。
+
+把一个`Mat`转化成`oclMat`非常简单，你可以调用`oclMat`的构造函数：
 
 {% highlight c++ %}
 oclMat myOclMat = (oclMat)mat; // mat is a Mat object  
 {% endhighlight %}
 
-oclMat的构造函数会自动复制据Mat的矩阵头，如列、行数，元素类型，通道数等等，并且隐式的把cpu host上的内存转移到gpu device的显存上。如果用户想显示的转移（或者称为“上传”），可以调用：
+oclMat的构造函数会自动复制据Mat的矩阵头(header)，如列、行数，元素类型，通道数等等，分配一个足够大小的设备储存，并且隐式的把cpu host上的内存转移到gpu device的显存上。如果用户想显示的转移（或者称为“上传”），可以调用：
 
 {% highlight c++ %}
 oclMat myOclMat;  
 myOclMat.upload(mat);  
 {% endhighlight %}
 
-这样我们就有了一个上传到device上的oclMat矩阵。这个矩阵数据就可以传递给ocl模块的函数，进行你所需要的运算。但是由于oclMat矩阵的数据是储存在gpu显存上的，我们在host（cpp文件中）是不能直接去取值的。如果计算完毕后，我们想取得oclMat的结果，需要把在显存上的oclMat数据转移成Mat格式，这个操作叫做”下载”。跟上传类似，我们也有隐式和显示两种方法：
+这样我们就有了一个上传到device上的`oclMat`矩阵。这个矩阵数据就可以传递给ocl模块的函数，进行你所需要的运算。但是由于oclMat矩阵的数据是储存在gpu显存上的，我们在host（cpp文件中）是不能直接去取值的（除非利用host内存地址映射）。如果计算完毕后，我们想取得`oclMat`的结果，需要把在显存上的`oclMat`数据转移成`Mat`格式，这个操作叫做”下载”。跟上传类似，我们也有隐式和显示两种方法：
 
 {% highlight c++ %}
 mat = (Mat)myOclMat;  
 myOclMat.download(mat);   
 {% endhighlight %}
 
-一般情况下，你不必担心oclMat数据的释放问题，因为在oclMat被解体的时候，会自动调用数据的释放。有些情况下GPU显存十分紧张的时候，就需要用户自己去释放oclMat。
+一般情况下，你不必担心`oclMat`数据的释放问题，因为跟`Mat`相同，它是有reference pointer控制显存的释放。有些情况下GPU显存十分紧张的时候，就需要用户自己去释放`oclMat`，或者考虑显存的重复利用。
 
-1. 概括地说，使用ocl模块有这么几个过程：
+1. 概括地说，使用`ocl`模块有这么几个过程：
 2. 注册全局OpenCL设备。 //调用getDevice
-3. 把内存的数据上传到显存。//把Mat转化成oclMat
-4. 在OpenCL设备上进行计算。//调用ocl模块函数
-5. 把显存的数据下载到内存。//把oclMat转化成Mat
-6. 在host上进行剩余的运算。//调用cv::函数
+3. 把内存的数据上传到显存。//把`Mat`转化成`oclMat`
+4. 在OpenCL设备上进行计算。//调用`ocl`模块函数
+5. 把显存的数据下载到内存。//把`oclMat`转化成`Mat`
+6. 在host上进行剩余的运算。//调用`cv::`函数
 
-**PS**
+PS
+==
 
 下载到的OpenCV的trunk代码中包含了几个OpenCL的sample程序可以作为开发者的参考。
 
 谢谢阅读~
+
 鹏 
+
 August 19, 2012
 
