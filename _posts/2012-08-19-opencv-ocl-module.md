@@ -72,7 +72,7 @@ GPU模块最初由NVIDIA公司在2010年起支持开发，2011年春发布了第
 - 把用最高效的方式优化GPU模块函数作为目标。这些优化方法包含：适应最新的硬件架构；非同步模式核函数执行；重叠式拷贝和零拷贝等。
 - 功能完整性。意思就是说即使有些函数性能并没有提高的情况下，尽可能的把CPU模块函数移植到GPU上去做，以减少数据传输产生的延迟。
 
-![compare-gpu-cpu](/image/compare-gpu-cpu.png)
+![compare-gpu-cpu](/image/post/compare-gpu-cpu.png)
 
 **模块设计**
 

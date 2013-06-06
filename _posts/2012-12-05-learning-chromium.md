@@ -37,11 +37,11 @@ Chromium的构建方法就不多说了，推荐 [官方安装帮助文档](http:
 **调试多进程的Chromium**，其实利用visual studio自带的工具就完全可以进行: 调试开始后，只要把已经运行起来的子进程附加到debugger上就可以了。具体操作是，开始调试，选择`Tools > Attach to Process`， 然后按住ctrl选择多个你想要调试的chrome.exe进程，附加到debugger上。另外，最好用debug构建的Chromium进行调试，不然release的编译器优化问题会产生一些很诡异的情况（比如取不到特定变量的值，跳过了一些被优化过的函数什么的。。。）
 附加进程到debugger的界面如图所示：
 
-![processes-chromium.PNG](/image/processes-chromium.PNG)
+![processes-chromium.PNG](/image/post/processes-chromium.PNG)
 
 附加到debugger后，你可以在process窗口看到正在调试的进程:
 
-![debugger.PNG](/image/debugger.PNG)
+![debugger.PNG](/image/post/debugger.PNG)
 
 另外，刚才说过，Chromium默认情况下是多进程模式（Process-per-site-instance，一个网站打开的所有页面属于同一进程）。你还可以提供运行时参数--single-process，强制让Chromium只用一个进程运行。这种模式可以通过传统的方式进行调试，但是这种模式属于实验性质的，可能会有这样和那样的bug出现，导致页面崩溃。
 
@@ -52,7 +52,7 @@ Chromium project官网还提供了多个调试办法，不过直接利用visual 
 下图是一个content_shell在windows下运行的效果。注意，这个东西处理HTTP请求很慢（content API并不包括完整的资源下载功能，Chrome的所有资源下载都是通过Browser进程负责的），最好只用来测试本地的页面。
 
 
-![content-shell.PNG](/image/content-shell.PNG)
+![content-shell.PNG](/image/post/content-shell.PNG)
 
 ## 推荐阅读和引用来源
 

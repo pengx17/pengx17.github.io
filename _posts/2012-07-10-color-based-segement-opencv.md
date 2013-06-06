@@ -13,7 +13,7 @@ tldr: true
 
 <!-- more -->
 
-![Input](/image/bagua_input.JPG)
+![Input](/image/post/bagua_input.JPG)
 
 可以看出问题解决方案很直接：遍历图片的每个像素，然后如果像素的颜色接近于绿色，保留此像素；反之遗弃，设值为0。解决思路跟photoshop的颜色选择功能类似。
 
@@ -59,4 +59,4 @@ int main(int argc, char* argv[])
 }  
 {% endhighlight %}
 效果如下图：
-![Input]({{site:url}}/image/bagua_output.JPG)
+![Input]({{site:url}}/image/post/bagua_output.JPG)
