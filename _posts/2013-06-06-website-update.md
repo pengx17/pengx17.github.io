@@ -9,6 +9,8 @@ group: archive
 icon: rocket
 ---
 
+![网站更新](/image/post/upup.jpg)
+
 最近微调了一下博客细节，比如：
 
 1. **DNS namesever** GoDaddy提供的服务器在国内实在是不好用，只好替换成了[DNSPOD](https://www.dnspod.cn/)，速度感觉还不错，设计界面界面也很人性化。
