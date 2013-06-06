@@ -79,9 +79,9 @@ pengx :
   # Set 'provider' to false to turn commenting off globally.
   #
   comments :
-    provider : disqus
-    disqus :
-      short_name : pengxblog
+    provider : duoshuo
+    duoshuo :
+      short_name : pengx17
    
   # Settings for analytics helper
   # Set 'provider' to the analytics provider you want to use.

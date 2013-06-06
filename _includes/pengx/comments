@@ -1,8 +1,8 @@
 {% if site.pengx.comments.provider and page.comments != false %}
 
 {% case site.pengx.comments.provider %}
-{% when "disqus" %}
-  {% include pengx/comments-providers/disqus %}
+{% when "duoshuo" %}
+  {% include pengx/comments-providers/duoshuo %}
 {% when "custom" %}
   {% include custom/comments %}
 {% endcase %}
