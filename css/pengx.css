@@ -41,6 +41,10 @@ a:visited:hover {
   color: #1077BC;
 }
 
+body {
+  text-shadow: 0 1px 0 #ffffff;
+}
+
 /* 主页中央区域 */
 html, body, div.wrapper {
   height: 100%;
