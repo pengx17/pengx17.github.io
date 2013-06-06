@@ -49,6 +49,7 @@
       } );
     }
     $('.error-404').tooltip({placement: 'top'});
+	$('.featured-ribbon').tooltip({placement: 'top'});
   });
 }(window.jQuery);
 
