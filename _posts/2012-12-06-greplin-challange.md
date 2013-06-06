@@ -47,6 +47,7 @@ A = kate, B = bill ?
 A = bill, A = kate .  
 {% endhighlight %}
 这里没有顺序差别，所以我们会得到2个组合。
+
 * * *
 言归正传。greplin challange是greplin公司设计的几个编程挑战，共计3关。
 
