@@ -1,6 +1,7 @@
 <div class="row-fluid typo">
   <div class="span2"></div>
-  <div class="span8 typo well post-full {% if page.featured %} featured-post {% endif %}">
+  <div class="span8 typo well post-full">
+	{% if page.featured %} {% include pengx/featured_post_decoration %} {% endif %}
     {% include pengx/wbshare %}
     <h2 class="title">{{ page.title }} {% if page.tagline %}<small>{{page.tagline}}</small>{% endif %}</h2>
     <div class="post_info">
