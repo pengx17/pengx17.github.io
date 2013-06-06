@@ -405,3 +405,10 @@ h2.title
 .featured-ribbon:hover {
   background-image:url('/image/featured-small-hover.png');
 }
+
+/* 因为我很爱用<del>, 我觉得得修饰一下。。 */
+del {
+  color: rgb(185, 185, 185);
+}
+
+
