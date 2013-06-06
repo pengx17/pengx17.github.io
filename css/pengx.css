@@ -18,6 +18,11 @@ codepiano.github.io
 /* a标签样式 */
 a {
   text-decoration: none;
+  
+  -webkit-transition: all 0.15s ease-in-out;
+     -moz-transition: all 0.15s ease-in-out;
+       -o-transition: all 0.15s ease-in-out;
+          transition: all 0.15s ease-in-out;
 }
 
 a:link {
@@ -258,6 +263,7 @@ div.tooltip-inner {
   font-size: 14px;
   color: #F3F3F3;
   background-color: #1693A7;
+  text-shadow: 0 0;
 }
 
 
@@ -341,10 +347,10 @@ h2.title
   position: relative;
   margin: -1.4em;
   
-  -webkit-transition: all 0.2s ease-in-out;
-     -moz-transition: all 0.2s ease-in-out;
-       -o-transition: all 0.2s ease-in-out;
-          transition: all 0.2s ease-in-out;
+  -webkit-transition: opacity 0.2s ease-in-out;
+     -moz-transition: opacity 0.2s ease-in-out;
+       -o-transition: opacity 0.2s ease-in-out;
+          transition: opacity 0.2s ease-in-out;
 }
 
 .weibo-share:hover {
@@ -381,10 +387,13 @@ h2.title
   margin-top: -21px;
   margin-left: -21px;
   padding-top: 15px;
-}
-.featured-ribbon:hover {
+  cursor: help;
+  
   -webkit-transition: all 0.2s ease-in-out;
      -moz-transition: all 0.2s ease-in-out;
        -o-transition: all 0.2s ease-in-out;
           transition: all 0.2s ease-in-out;
+}
+.featured-ribbon:hover {
+  background-image:url('/image/featured-small-hover.png');
 }

@@ -1,2 +1,2 @@
-<div class="featured-ribbon" data-toggle="tooltip" title="Featured post!">
+<div class="featured-ribbon" data-trigger="click" title="精华帖">
 </div>
