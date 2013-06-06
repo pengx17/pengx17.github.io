@@ -46,6 +46,7 @@ a:visited:hover {
   color: #1077BC;
 }
 
+/* 让页面字体更有质感 */
 body {
   text-shadow: 0 1px 0 #ffffff;
 }
@@ -83,7 +84,6 @@ pre code {
   font-size: 15px;
   color: #145201;
 }
-
 
 blockquote {
   font-size: 15px;
@@ -374,10 +374,12 @@ h2.title
           box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
+/* 使帖子定位更精确 */
 .post-full {
     position: relative;
 }
 
+/* 精华帖缎带的效果 */
 .featured-ribbon {
   position: absolute;
   background-image:url('/image/featured-small.png');
@@ -387,7 +389,7 @@ h2.title
   margin-top: -21px;
   margin-left: -21px;
   padding-top: 15px;
-  cursor: help;
+  cursor: pointer;
   
   -webkit-transition: all 0.2s ease-in-out;
      -moz-transition: all 0.2s ease-in-out;
