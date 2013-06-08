@@ -9,3 +9,6 @@ tags: [OpenCV, retina model]
 group: archive
 icon: file-alt
 ---
+![retina-call-stack](/image/post/retina_call_graph.png)
+
+... WHAT THE F<del>UCK</del> ?
