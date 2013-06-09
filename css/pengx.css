@@ -411,4 +411,8 @@ del {
   color: rgb(185, 185, 185);
 }
 
+/* 居中帖子内的图片 */
+.index-post img, .post-full img{
+ display: block; margin-left: auto; margin-right: auto; 
+}
 
