@@ -388,22 +388,23 @@ h2.title
 /* 精华帖缎带的效果 */
 .featured-ribbon {
   position: absolute;
-  background-image:url('/image/featured-small.png');
-  background-repeat: no-repeat;
+  background:url('/image/featured-small-full.png') no-repeat;
   width: 80px;
-  height: 43px;
+  height: 25px;
   margin-top: -26px;
   margin-left: -21px;
   padding-top: 15px;
   cursor: pointer;
   
+  /*
   -webkit-transition: all 0.2s ease-in-out;
      -moz-transition: all 0.2s ease-in-out;
        -o-transition: all 0.2s ease-in-out;
           transition: all 0.2s ease-in-out;
+  */
 }
 .featured-ribbon:hover {
-  background-image:url('/image/featured-small-hover.png');
+  background-position:0 -43px;
 }
 
 /* 因为我很爱用<del>, 我觉得得修饰一下。。 */
