@@ -391,16 +391,16 @@ h2.title
   background:url('/image/featured-small-full.png') no-repeat;
   width: 80px;
   height: 25px;
-  margin-top: -26px;
+  margin-top: -25px;
   margin-left: -21px;
   padding-top: 15px;
   cursor: pointer;
   
   /*
-  -webkit-transition: all 0.2s ease-in-out;
-     -moz-transition: all 0.2s ease-in-out;
-       -o-transition: all 0.2s ease-in-out;
-          transition: all 0.2s ease-in-out;
+  -webkit-transition: margin-top 0.2s ease;
+     -moz-transition: margin-top 0.2s ease;
+       -o-transition: margin-top 0.2s ease;
+          transition: margin-top 0.2s ease;
   */
 }
 .featured-ribbon:hover {
