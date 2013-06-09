@@ -412,7 +412,7 @@ del {
 }
 
 /* 居中帖子内的图片 */
-.index-post img, .post-full img{
+.post-index img, .post-full img{
  display: block; margin-left: auto; margin-right: auto; 
 }
 
