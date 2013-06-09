@@ -412,7 +412,11 @@ del {
 }
 
 /* 居中帖子内的图片 */
-.post-index img, .post-full img{
+.post img{
  display: block; margin-left: auto; margin-right: auto; 
 }
 
+/* 帖子的特殊装饰 */
+.post {
+ border-top-width: 5px;
+}

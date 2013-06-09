@@ -5,7 +5,7 @@ title: pengx17
 {% include pengx/setup %}
 <!-- 按照分页插入博客文章 -->
 {% for post in paginator.posts %}
-<div class="well typo post-index">
+<div class="well typo post post-index">
   {% if post.featured %} {% include pengx/featured_post_decoration %} {% endif %}
   {% include pengx/wbshare %}
   <h2 class="title"><a href="{{ post.url }}">
