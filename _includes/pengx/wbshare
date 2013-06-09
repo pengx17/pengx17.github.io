@@ -1,3 +1,5 @@
+
+{% if site.pengx.sharing.provider %}
 {% if post.title %} {% assign post_title = post.title %} {% else %} {% assign post_title = page.title %}{% endif %}
 <div class="weibo-share">
 <script type="text/javascript" charset="utf-8">
@@ -22,3 +24,4 @@
 })()
 </script>
 </div>
+{% endif %}
