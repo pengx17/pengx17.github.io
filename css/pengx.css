@@ -256,16 +256,16 @@ div.row {
 
 /* 覆盖bootstrap默认的tooltip设置 */
 div.tooltip.right .tooltip-arrow {
-  border-right-color: #1693A7;
+  border-right-color: rgb(255, 138, 73);
 }
 div.tooltip.top .tooltip-arrow {
-  border-top-color: #1693A7;
+  border-top-color: rgb(255, 138, 73);
 }
 
 div.tooltip-inner {
   font-size: 14px;
   color: #F3F3F3;
-  background-color: #1693A7;
+  background-color: rgb(255, 138, 73);
   text-shadow: 0 0;
 }
 
@@ -369,15 +369,15 @@ h2.title
      -moz-transition: all 0.2s ease-in-out;
        -o-transition: all 0.2s ease-in-out;
           transition: all 0.2s ease-in-out;
-  -webkit-box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-     -moz-box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-          box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  -webkit-box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+     -moz-box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+          box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
 }
 
 .well:hover {
-  -webkit-box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-     -moz-box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-          box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+     -moz-box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
 }
 
 /* 使帖子定位更精确 */
@@ -391,7 +391,7 @@ h2.title
   background:url('/image/featured-small-full.png') no-repeat;
   width: 80px;
   height: 25px;
-  margin-top: -25px;
+  margin-top: -24px;
   margin-left: -21px;
   padding-top: 15px;
   cursor: pointer;

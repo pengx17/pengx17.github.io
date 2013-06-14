@@ -12,7 +12,7 @@ featured: true
 
 为了本地调试搭建好的博客，我们得在当前机器上安装一个Jekyll服务，在本地生成完毕后再把更新push到github上面。
 笔者主要的开发环境是在Windows上，但[Jekyll官方文档](http://jekyllrb.com/docs/installation/)并没有提供在Windows上面安装的方法。
-按照<a id="tip-tutorial" href="#reference" data-toggle="tooltip">网上的各种教程</a>，总算是成功在Win 7/8上面搭建成功了Jekyll。
+按照<a href="#reference">网上的各种教程</a>，总算是成功在Win 7/8上面搭建成功了Jekyll。
 为了给后来人提供方便，这篇文章我就介绍一下如何一步一步在Windows 7 x64上搭建一个支持中文的Jekyll系统。
 
 <script>
