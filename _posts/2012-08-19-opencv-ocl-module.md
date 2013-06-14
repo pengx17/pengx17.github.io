@@ -155,6 +155,9 @@ myOclMat.download(mat);
 5. 把显存的数据下载到内存。//把`oclMat`转化成`Mat`
 6. 在host上进行剩余的运算。//调用`cv::`函数
 
+以下是OCL模块的例子SURF matcher的输出结果示例：
+![SURF matcher](/image/post/surf_matcher.png)
+
 PS
 ==
 
