@@ -102,6 +102,19 @@ a.brand {
   height: auto;
 }
 
+.navbar .span8 {
+  background: 180px 100px url('/image/giant-head.png') no-repeat;
+  
+  -webkit-transition: all 0.4s ease-in-out;
+     -moz-transition: all 0.4s ease-in-out;
+       -o-transition: all 0.4s ease-in-out;
+          transition: all 0.4s ease-in-out;
+}
+
+.navbar .span8:hover {
+  background: 180px url('/image/giant-head.png') no-repeat;
+}
+
 .navbar ul.nav {
   padding: 15px 20px 15px;
   height:auto;
