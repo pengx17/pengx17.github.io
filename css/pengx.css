@@ -112,7 +112,7 @@ a.brand {
 }
 
 .navbar .span8:hover {
-  background: 180px url('/image/giant-head.png') no-repeat;
+  /*background: 180px url('/image/giant-head.png') no-repeat;*/
 }
 
 .navbar ul.nav {
