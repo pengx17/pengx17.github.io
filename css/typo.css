@@ -29,7 +29,7 @@ audio, canvas, video {
 
 /* 要注意表单元素并不继承父级 font 的问题 */
 body, button, input, select, textarea {
-	font:500 14px/1.8 Hiragino Sans GB,WenQuanYi Micro Hei,"Microsoft Yahei",sans-serif;
+	font:500 14px/1.8 Hiragino Sans GB,WenQuanYi Micro Hei,Verdana,"Microsoft Yahei",sans-serif;
 }
 
 /* 去掉各Table  cell 的边距并让其边重合 */
@@ -190,7 +190,7 @@ small {
 
 h1, h2, h3, h4, h5, h6{
 	font-weight: 500;
-    font-family: Helvetica Neue,Hiragino Sans GB,WenQuanYi Micro Hei,"Microsoft Yahei",sans-serif;
+    font-family: Helvetica Neue,Hiragino Sans GB,WenQuanYi Micro Hei,Verdana,"Microsoft Yahei",sans-serif;
 	color:#333;
 }
 

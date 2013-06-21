@@ -2,7 +2,7 @@
 layout: post
 keywords: blog
 description: blog
-title: "Cross-platform development notes on OpenCL"
+title: "Cross-platform development notes on OpenCL(英文)"
 categories: [opencl]
 tags: [OpenCV, OpenCL]
 group: archive
@@ -10,17 +10,22 @@ icon: file-alt
 tldr: true
 ---
 
+
 # Introduction
 
-During the days developing OpenCV’s OpenCL module, we the OpenCV group encountered numerous platform-specific challenges. Cross-platform development on OpenCL is not easy and we need to enumerate every combinations of a valid OpenCL context: 
-1. the OpenCL solution providers, for example, AMD, nvidia and Intel have their own implementations for OpenCL standards; 
-2. different devices, for example, `AMD/Intel iGPU’s`, `AMD/nvidia dGPU’s` and `Intel/AMD CPU’s`; 
-3. different versions of display drivers and SDK’s; 
-4. bitness (x86 or x64) of the system 
-5. different system platforms such as Linux, Windows and Mac OS; 
-6. the OpenCL version (1.1 or 1.2). It is our task to make sure all of them work properly eliminating platform specific differences while preserving good performance at the same time.
+During the days developing OpenCV’s OpenCL module, we the OpenCV group encountered numerous platform-specific challenges. **Cross-platform development on OpenCL** is not easy and we need to enumerate every combinations of a valid OpenCL context: 
+1. the OpenCL solution providers, for example, AMD, nvidia, Intel and even Apple (Mac OS) have their own implementations for OpenCL standards;
+2. different devices, for example, AMD/Intel iGPU’s, AMD/nvidia dGPU’s and Intel/AMD CPU’s;
+3. different versions of display drivers and SDK’s;
+4. bitness (x86 or x64) of the system;
+5. different system platforms such as Linux, Windows and Mac OS;
+6. the OpenCL version (1.1 or 1.2). 
+
+It is our task to make sure all of them work properly eliminating platform specific differences while preserving good performance at the same time.
 
 However this looks frustrating enough, the known cross-platform development issues, including “black screen” or “screen freeze”, program crash and various accuracy problems are usually caused by similar patterns of errors. This article is to summarize the practices we found in trials and errors while digging out cross-platform solutions. It also means to provide a guide and a standard for developers to avoid cross-platform OpenCL development pitfalls and at the same time to achieve best performance. 
+
+Here, we publish the cross-platform development notes which may make life easier for people whether in OpenCV's OCL module development or other OpenCL related projects. In the meantime, please keep in mind that some contents maybe out-of-date due to bugfixes in new releases of OpenCL drivers/SDK.
 
 <!-- more -->
 
@@ -41,14 +46,14 @@ This section lists common issues when an OpenCL program behaves unexpectedly. It
 
 This is the most frequently common issue we encountered. Usually, a program crash is caused by accessing an invalid device memory address. The symptoms for GPU and CPU devices may not behave exactly the same, which are described below.
 
-On GPU devices, when running erroneous kernels attempting to access bound-of-bound addresses the screen firstly freezes at a sudden (system loses response to user’s control), after a while screen then turns black and then screen backs to normal at last (on Windows 7 a notice will pop out saying “display driver is recovered” above the system tray icon area). Occasionally you may also notice severe blurred screen even after display driver is recovered.
+**On GPU devices**, when running erroneous kernels attempting to access bound-of-bound addresses the screen firstly freezes at a sudden (system loses response to user’s control), after a while screen then turns black and then screen backs to normal at last (on Windows 7 a notice will pop out saying “display driver is recovered” above the system tray icon area). Occasionally you may also notice severe blurred screen even after display driver is recovered.
 
-While for CPU devices, the issue behaves exactly like a page fault on memory. It often causes the program to throw a segmentation fault error on Linux and forces the program to shutdown; on Windows, user may only notice the program quits unexpectedly (run without debugging mode) but the error is only visible when running in debugging mode and prompts an Access Violation Error dialog when error occurs.
+While for **CPU devices**, the issue behaves exactly like a page fault in memory. It often causes the program to throw a segmentation fault error on Linux and forces the program to shutdown; on Windows, user may only notice the program quits unexpectedly (run without debugging mode) but the error is only visible when running in debugging mode and prompts an Access Violation Error dialog when error occurs.
 
 To fix this kind of issue, our suggestion is to isolate the problematic kernel by tracing into the host code and then check which pointer dereference operation in this kernel section has out of bounds access. Most of the time the invalid accesses are near edges or there is error when calculating pointer offsets. See appendix for more information.
 
 
-#### nvidia GPU: Strange CL_OUT_OF_RESOURCES error
+#### nvidia GPU: Strange `CL_OUT_OF_RESOURCES` error
 
 When a kernel has out-of-bounds access on nvidia GPU we found that the kernel often works fine, but its subsequent kernels on the command queue may throw `CL_OUT_OF_RESOURCES` error upon being started. 
 
@@ -56,18 +61,23 @@ When a kernel has out-of-bounds access on nvidia GPU we found that the kernel of
 ## Intel platform: OpenCL programs build failures
 
 The issues can be reproduced on Intel OpenCL SDK 2.0 and 3.0. We came across two issues which cause the Intel OpenCL compiler fail to build OpenCL programs. 
+
 We suggest to use Intel’s offline OpenCL compiler to debug compilation issues.
-Intel compiler error: parameter may not be qualified with an address space
+
+
+#### Intel compiler error: parameter may not be qualified with an address space
+
+
 On Intel platform we found that OpenCL address space qualifiers like `__local` and `__constant` are not allowed for function parameters when they are arrays. For example, it is safe to define `void f(__local int * x) {/*...*/}` but NOT `void f(__local int x []) {/*...*/}` for Intel SDK’s OpenCL compiler. Thus for platform portability we may have to always use pointers instead of arrays. 
 
 ## Double precision floating point support
 
-For some algorithms, double precision floating point is required for higher precision, e.g., sum, integral and SURF. Despite the fact that not all devices support double and AMD has its own low performance cl_amd_fp64 extension, we added a function setFloatPrecision to let the user to set the double support behaviour. Also the kernel files are added with macros to determine whether or not to enable this feature.
+For some algorithms, double precision floating point is required for higher precision, e.g., sum, integral and SURF. Despite the fact that not all devices support double and AMD has its own low performance `cl_amd_fp64` extension, we added a function `setFloatPrecision` to let the user to set the double support behaviour. Also the kernel files are added with macros to determine whether or not to enable this feature.
 
 ## CPU specific accuracy problems
 
 
-Most of the time we found that CPU’s accuracy problem is related to wavefront/warp size of a CPU. Here the term warp size means the number of synchronized threads to be executed without barriers. For CPU, the theoretic wavefront size is 1.
+Most of the time we found that CPU’s accuracy problem is related to wavefront/warp size of a CPU. Here the term warp size means the number of synchronized threads to be executed without barriers. For CPU, [the theoretic wavefront size is 1](http://devgurus.amd.com/thread/145744). 
 
 For example, a typical solution for summing 32 numbers with 16 threads would be:
 
@@ -83,7 +93,7 @@ if(tid < 1)  data[tid] += data[tid + 1];  barrier(CLK_LOCAL_MEM_FENCE);
 
 When execution finishes, `data[0]` has the total sum of all 32 numbers in local memory data. To achieve best performance, on GPUs the barriers in the example above are not necessary and can be eliminated. This is true as we assume wavefront size is at least 32 (32 for nvidia and 64 for AMD GPU’s); however for CPU’s the number is always 1, meaning that we need to synchronize each of the additions with a barrier. 
 
-In implementation perspective, for convenience we add a function `queryDeviceInfo()` to query device wavefront size and let the developer to control these synchronization operations in kernels. At the moment, we have SURF, HOG and pyrlk using this feature. Nevertheless, a source pointed out that optimization relies on wavefront size is not portable, it is highly suggested to pass macros to determine the presence of barriers in compilation time.
+In implementation perspective, for convenience we add a function `queryDeviceInfo()` to query device wavefront size and let the developer to control these synchronization operations in kernels. At the moment, we have SURF, HOG and pyrlk using this feature. Nevertheless, a source pointed out that optimization relies on wavefront size is not portable; it is highly suggested to pass macros to determine the presence of barriers in compilation time.
 
 ## Passing arguments to kernels
 
@@ -92,7 +102,7 @@ A common practice is to use OpenCV’s OpenCL wrapper to call OpenCL API’s. On
 {% highlight cpp %}
 //if double is not supported on the current device, we cast it to float
 double f = 123.;
-vector< pair<size_t , const void *> > args;
+vector<pair<size_t , const void *> > args;
 if(!support_double)
 {
     float tf = (float)f;
@@ -107,31 +117,31 @@ else
 //...
 {% endhighlight %}
 
-Remember, the value we passed to kernel is pointers. So its content should be ensured to be valid by the developer until the starting of kernel execution.
+Remember, the value passed to kernel is a pointer. So its content should be ensured to be valid by the developer until kernel execution starts.
 
 ## Using macros to simulate C++ templates
 
-As far as we know, only AMD’s OpenCL sdk support C++ templates for OpenCL C programs. We cannot rely on it as we need to maximum code portability. This, however, can be simulated by passing type defines to build options. We have written many kernels in this way to eliminate definition duplications, for example, add/sub, and/or/xor operators, brute force matchers, etc.
+As far as we know, only AMD’s OpenCL sdk (since AMD APP SDK version 2.6) support C++ templates for OpenCL C programs. We cannot rely on it as we need to maximum code portability. This, however, can be partially simulated by passing type defines to build options. We have written many kernels in this way to eliminate definition duplications, for example, add/sub, and/or/xor operators, brute force matchers, etc.
 
 #### Pass constant macro defines instead of variadic arguments
 
-At the time optimizing BruteForceMatcher and stereobm we attempted to add macro definitions into build options when building OpenCL programs on host. Surprisingly the simple change gave a very significant performance gain. The reason we thought is that these parameters are originally acting as looping counts in kernels and thus OpenCL compiler is given a hint to unroll loops if the looping counts are constant numbers defined with macros. Similarly, this can also applied to if/switch conditions.
+At the time optimizing BruteForceMatcher and stereobm we attempted to add macro definitions into build options when building OpenCL programs on host. Surprisingly the simple change gave a very significant performance gain. The reason, we assumed, is that these parameters are originally acting as looping counts in kernels and thus OpenCL compiler is given a hint to unroll loops if the looping counts are constant numbers defined with macros. Similarly, this can also applied to if/switch conditions.
 
 ## Build error on Mac OS
 
-On Mac OS, there are some rigorous OpenCL C syntax rules during compilation. When writing the kernel in opencl, we should pay extra caution against the following cases:
+On Mac OS, there are some rigorous OpenCL C syntax rules during compilation for Apple's OpenCL compiler. When writing the kernel in OpenCL, we should pay extra caution against the following cases:
 
 
 #### Conditional expression and assignment statement (`?` operator)
 
 
-You must to ensure that all expressions in an conditional assignment expression have the same type. Conditional variable needs casting if it has different type with right value in assignment statement, especially when we compute vector data type, like `ushort2`, `float4` and so on.
+You have to ensure that all expressions in an conditional assignment expression have the same type. Conditional variable needs explicit type casting if it has different type with the right value in a assignment statement, especially when we are working with vector data types, like `ushort2`, `float4` and so on.
 
 In practice, we found that many OpenCL compilation errors are due to such syntax error, for example in the following example, 
 
-`float4 res = 0 ? (float4)(1, 2, 3, 4) : (float4)(5, 6, 7, 8).`
+`float4 res = 0 ? (float4)(1, 2, 3, 4) : (float4)(5, 6, 7, 8);`
 
-We must explicitly convert the conditional variable ‘0’ to type float4 to make it compile.
+We must explicitly convert the conditional variable ‘0’ to type `float4` to make it compile.
 
 #### Bit operators `<<` or `>>` in macros
 
