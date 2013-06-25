@@ -80,7 +80,7 @@ Intel OpenCL SDK 2012 and 2013 beta has a bug that the OpenCL’s compiler fails
 We are building OpenCV’s OCL module on top of OpenCL 1.2 full profile. However there are some deprecated APIs or new added APIs, we managed to enable OpenCV’s backwards executables portability, i.e., to make a OpenCV program compiled with OpenCL 1.2 library runnable on OpenCL 1.1 only environment.
 
 [This link](http://streamcomputing.eu/blog/2011-11-19/difference-between-opencl-1-2-and-1-1/) explains the differences between OpenCL 1.1 and OpenCL 1.2. There are two cases of difference in use: In OpenCL 1.2, clCreateImage2D and clCreateImage3D has been merged into a single function clCreateImage; another difference is OpenCL 1.2 added clEnqueueFillBuffer for conveniently fill a buffer with a pattern, which is used in ocl function setTo.
-In both cases, we separate codes in different code blocks guarded with `CL_VERSION_1_2` macro. Also we enable CL_USE_DEPRECATED_OPENCL_1_1_APIS to avoid build errors on some platforms, where deprecated APIs are defaultly disabled.
+In both cases, we separate codes in different code blocks guarded with `CL_VERSION_1_2` macro. Also we enable `CL_USE_DEPRECATED_OPENCL_1_1_APIS` to avoid build errors on some platforms, where deprecated APIs are defaultly disabled.
 
 
 ## Double precision floating point support
