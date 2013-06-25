@@ -60,7 +60,7 @@ When a kernel has out-of-bounds access on nvidia GPU we found that the kernel of
 
 ## Intel platform: OpenCL programs build failures
 
-The issues can be reproduced on Intel OpenCL SDK 2.0 and 3.0. We came across two issues which cause the Intel OpenCL compiler fail to build OpenCL programs. 
+The issues can be reproduced on Intel OpenCL SDK 2.0 (OpenCL 1.1) and 3.0 (OpenCL 1.2). We came across two issues which cause the Intel OpenCL compiler fail to build OpenCL programs. 
 
 We suggest to use Intel’s offline OpenCL compiler to debug compilation issues.
 
@@ -70,6 +70,19 @@ We suggest to use Intel’s offline OpenCL compiler to debug compilation issues.
 
 On Intel platform we found that OpenCL address space qualifiers like `__local` and `__constant` are not allowed for function parameters when they are arrays. For example, it is safe to define `void f(__local int * x) {/*...*/}` but NOT `void f(__local int x []) {/*...*/}` for Intel SDK’s OpenCL compiler. Thus for platform portability we may have to always use pointers instead of arrays. 
 
+#### Image2d type support
+
+Intel OpenCL SDK 2012 and 2013 beta has a bug that the OpenCL’s compiler fails to build when kernel file contains `image2d_t` type. This has been fixed in latest SDK (2013 release).
+
+
+## Backwards portability for OpenCL 1.1
+
+We are building OpenCV’s OCL module on top of OpenCL 1.2 full profile. However there are some deprecated APIs or new added APIs, we managed to enable OpenCV’s backwards executables portability, i.e., to make a OpenCV program compiled with OpenCL 1.2 library runnable on OpenCL 1.1 only environment.
+
+This link explains the differences between OpenCL 1.1 and OpenCL 1.2. There are two cases of difference in use:. In OpenCL 1.2, clCreateImage2D and clCreateImage3D has been merged into a single function clCreateImage; another difference is OpenCL 1.2 added clEnqueueFillBuffer for conveniently fill a buffer with a pattern, which is used in ocl function setTo.
+In both cases, we separate codes in different code blocks guarded with `CL_VERSION_1_2` macro. Also we enable CL_USE_DEPRECATED_OPENCL_1_1_APIS to avoid build errors on some platforms, where deprecated APIs are defaultly disabled.
+
+
 ## Double precision floating point support
 
 For some algorithms, double precision floating point is required for higher precision, e.g., sum, integral and SURF. Despite the fact that not all devices support double and AMD has its own low performance `cl_amd_fp64` extension, we added a function `setFloatPrecision` to let the user to set the double support behaviour. Also the kernel files are added with macros to determine whether or not to enable this feature.
@@ -77,9 +90,9 @@ For some algorithms, double precision floating point is required for higher prec
 ## CPU specific accuracy problems
 
 
-Most of the time we found that CPU’s accuracy problem is related to wavefront/warp size of a CPU. Here the term warp size means the number of synchronized threads to be executed without barriers. For CPU, [the theoretic wavefront size is 1](http://devgurus.amd.com/thread/145744). 
+Most of the time we found that CPU’s accuracy problem is related to wavefront/warp size of a CPU. Here the term warp size means the number of synchronized threads to be executed without barriers. For CPU, [the theoretic wavefront size is 1](http://devgurus.amd.com/thread/145744), even when number of CPU cores is 4.
 
-For example, a typical solution for summing 32 numbers with 16 threads would be:
+For example, a typical solution (scan) for summing 32 numbers with 16 threads parallelly would be:
 
 {% highlight cpp %}
 __local int data [32] = {...};
@@ -91,9 +104,9 @@ if(tid < 2)  data[tid] += data[tid + 2];  barrier(CLK_LOCAL_MEM_FENCE);
 if(tid < 1)  data[tid] += data[tid + 1];  barrier(CLK_LOCAL_MEM_FENCE);
 {% endhighlight %}
 
-When execution finishes, `data[0]` has the total sum of all 32 numbers in local memory data. To achieve best performance, on GPUs the barriers in the example above are not necessary and can be eliminated. This is true as we assume wavefront size is at least 32 (32 for nvidia and 64 for AMD GPU’s); however for CPU’s the number is always 1, meaning that we need to synchronize each of the additions with a barrier. 
+When execution finishes, `data[0]` has the total sum of all 32 numbers in local memory data. To achieve best performance, on GPUs the barriers in the example above are not necessary and can be eliminated. This was true during the early development stages that we only had AMD and Nvidia GPUs whose wavefront size is at least 32 (32 for nvidia and 64 for AMD GPU’s); however for CPU’s the number is always 1, meaning that we need to synchronize each of the additions with a barrier; and even worse, we found that Intel GPU’s wavefront size may vary depending on target kernel. 
 
-In implementation perspective, for convenience we add a function `queryDeviceInfo()` to query device wavefront size and let the developer to control these synchronization operations in kernels. At the moment, we have SURF, HOG and pyrlk using this feature. Nevertheless, a source pointed out that optimization relies on wavefront size is not portable; it is highly suggested to pass macros to determine the presence of barriers in compilation time.
+Although assuming wavefront size is 1 and adding barrier behind each scan operations can resolve this issue in general, it is not performance efficient. In implementation perspective, for convenience we add a function `queryDeviceInfo()` to query device wavefront size and let the developer to control these synchronization operations in kernels. At the moment, we have SURF, HOG and pyrlk using this feature. Nevertheless, a source pointed out that optimization relies on wavefront size is not portable; it is highly suggested to pass macros to determine the presence of barriers in compilation time.
 
 ## Passing arguments to kernels
 
