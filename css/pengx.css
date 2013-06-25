@@ -115,10 +115,6 @@ a.brand {
   /*background: 180px url('/image/giant-head.png') no-repeat;*/
 }
 
-.navbar .span2 {
-  min-height:1px;
-}
-
 .navbar ul.nav {
   padding: 15px 20px 15px;
   height:auto;
