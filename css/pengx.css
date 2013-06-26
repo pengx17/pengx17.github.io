@@ -98,8 +98,9 @@ blockquote p {
 }
 
 /* 覆盖bootstrap导航条设置 */
-a.brand {
+.navbar  a.brand {
   height: auto;
+  padding: 5px 20px 0px;
 }
 
 .navbar .span8 {
@@ -116,7 +117,7 @@ a.brand {
 }
 
 .navbar ul.nav {
-  padding: 15px 20px 15px;
+  padding: 10px 20px 10px;
   height:auto;
 }
 
@@ -153,9 +154,11 @@ ul.tag_box > li:first-child {
 
 .site-author {
   color: #169FDE;
-  font-family: Verdana;
-  
+  font-size: 50px;
+  font-family: 'Metal Mania', cursive;
 }
+
+
 
 /* 底部div定位 */
 div.wrapper>div.typo{
