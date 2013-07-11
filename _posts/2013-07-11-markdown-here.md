@@ -14,11 +14,9 @@ icon: file-alt
 
 _当当当~当_！下面隆重推荐**[Markdown Here][1]**插件。
 
+盗一张官网Github README里的图：
 ![hehe, use markdown](https://raw.github.com/adam-p/markdown-here/master/store-assets/dos-equis-MDH.jpg)
 
-
-下面是插件效果截图:
-![Markdown Here!](/image/post/markdown_here.png)
 
 实际使用中，用户需要在GMail的撰写界面填写好Plain Markdown代码。写完后，点击一下Chrome的`Markdown Here Toggle`按钮，就自动把Markdown代码转化成了排版好的Rich HTML邮件内容，嗯？是不是很方便？
 <del>没用过Markdown的人是体会不到的啦。。</del>
@@ -40,10 +38,13 @@ _当当当~当_！下面隆重推荐**[Markdown Here][1]**插件。
 >
 > ...
 
+效果如下：
+![Markdown Here!](/image/post/markdown_here.png)
+
 Markdown Here不仅仅只支持GMail邮件。只要是支持富内容编辑(Rich Editing)的都可以通过这个插件简化排版。
 官方wiki列出了[支持的列表][2]。
 
-另外，这个插件可以在插件选项页面修改CSS设置，来定制排版风格。比如，我想修改默认字体修改成自己常用的'trebuchet'：
+另外，这个插件可以在插件选项页面修改CSS设置，来定制排版风格。比如，我想修改默认字体修改成自己常用的`Trebuchet`：
 
 {% highlight css %}
 .markdown-here-wrapper {
