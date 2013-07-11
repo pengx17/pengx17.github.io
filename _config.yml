@@ -4,6 +4,8 @@ exclude: [".rvmrc", ".rbenv-version", "README.md", "Rakefile", "changelog.md"]
 auto: true
 pygments: true
 paginate: 3
+# enable github favored Markdown
+markdown: redcarpet
 
 excerpt_separator: <!-- more -->
 

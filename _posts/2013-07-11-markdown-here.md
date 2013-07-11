@@ -46,11 +46,11 @@ Markdown Here不仅仅只支持GMail邮件。只要是支持富内容编辑(Rich
 
 另外，这个插件可以在插件选项页面修改CSS设置，来定制排版风格。比如，我想修改默认字体修改成自己常用的`Trebuchet`：
 
-{% highlight css %}
+```css
 .markdown-here-wrapper {
   font-family: 'trebuchet ms',sans-serif;
 }
-{% endhighlight %}
+```
 
 总之，妈妈再也不用担心邮件的排版问题了。木蛤蛤。
 
