@@ -43,15 +43,18 @@ _当当当~当_！下面隆重推荐**[Markdown Here][1]**插件。
 
 跟GitHub的Markdown形式类似，我们可以方便的在邮件里插入经过着色加亮的代码块，以如下格式:
 
-```
+<div class="highlight">
+<pre>
+<code>
 ```cpp
 int main(int,char**)
 {
   printf("Hello world!\n");
 }
 ```
-```
-
+</code>
+</pre>
+</div>
 Markdown Here不仅仅只支持GMail邮件。只要是支持富内容编辑(Rich Editing)的都可以通过这个插件简化排版。
 官方wiki列出了[支持的列表][2]。
 
