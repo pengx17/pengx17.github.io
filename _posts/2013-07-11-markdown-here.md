@@ -50,6 +50,7 @@ int main(int,char**)
   printf("Hello world!\n");
 }
 ```
+```
 
 Markdown Here不仅仅只支持GMail邮件。只要是支持富内容编辑(Rich Editing)的都可以通过这个插件简化排版。
 官方wiki列出了[支持的列表][2]。
