@@ -40,6 +40,15 @@ xp在网上Google了一圈，没有搜索到简单方便的好办法。比如，
 #include <functional>
 #include "opencv2/core/core.hpp"
 
+//templated classes to get the corresponding type in OpenCV type.
+template<class T> 
+struct KV_CVTYPE{ static int toType() {return 0;} };
+
+template<> struct KV_CVTYPE<int>  { static int toType() {return CV_32SC1;} };
+template<> struct KV_CVTYPE<float>{ static int toType() {return CV_32FC1;} };
+template<> struct KV_CVTYPE<Vec2i>{ static int toType() {return CV_32SC2;} };
+template<> struct KV_CVTYPE<Vec2f>{ static int toType() {return CV_32FC2;} };
+
 template<class key_type, class val_type>
 bool kvgreater(pair<key_type, val_type> p1, pair<key_type, val_type> p2)
 {
@@ -111,19 +120,22 @@ SortByKey_STL SortByKey_STL::instance = SortByKey_STL();
 SortByKey_STL::SortByKey_STL()
 {
     memset(instance.quick_sorters, 0, sizeof(quick_sorters));
+    
+#define NEW_SORTER(KT, VT) \
+    instance.quick_sorters[KV_CVTYPE<KT>::toType()][KV_CVTYPE<VT>::toType()] = kvquicksort<KT, VT>;
+    
     //there should be total of [CV_64FC4 * CV_64FC4] number of specializations
     //but for convinience and demonstration purpose we only list the following
-    instance.quick_sorters[CV_32SC1][CV_32SC1] = kvquicksort<int, int>;
-    instance.quick_sorters[CV_32SC1][CV_32SC2] = kvquicksort<int, Vec2i>;
+    NEW_SORTER(int, int);
+    NEW_SORTER(int, Vec2i);
+    NEW_SORTER(int, float);
+    NEW_SORTER(int, Vec2f);
 
-    instance.quick_sorters[CV_32SC1][CV_32FC1] = kvquicksort<int, float>;
-    instance.quick_sorters[CV_32SC1][CV_32FC2] = kvquicksort<int, Vec2f>;
-
-    instance.quick_sorters[CV_32FC1][CV_32FC1] = kvquicksort<float, float>;
-    instance.quick_sorters[CV_32FC1][CV_32FC2] = kvquicksort<float, Vec2f>;
-
-    instance.quick_sorters[CV_32FC1][CV_32SC1] = kvquicksort<float, int>;
-    instance.quick_sorters[CV_32FC1][CV_32SC2] = kvquicksort<float, Vec2i>;
+    NEW_SORTER(float, int);
+    NEW_SORTER(float, Vec2i);
+    NEW_SORTER(float, float);
+    NEW_SORTER(float, Vec2f);
+#undef NEW_SORTER
 }
 
 void SortByKey_STL::sort(cv::Mat& keys, cv::Mat& vals, bool is_gt)
