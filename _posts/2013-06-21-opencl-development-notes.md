@@ -79,20 +79,20 @@ Intel OpenCL SDK 2012 and 2013 beta has a bug that the OpenCL’s compiler fails
 
 We are building OpenCV’s OCL module on top of OpenCL 1.2 full profile. However there are some deprecated APIs or new added APIs, we managed to enable OpenCV’s backwards executables portability, i.e., to make a OpenCV program compiled with OpenCL 1.2 library runnable on OpenCL 1.1 only environment.
 
-[This link](http://streamcomputing.eu/blog/2011-11-19/difference-between-opencl-1-2-and-1-1/) explains the differences between OpenCL 1.1 and OpenCL 1.2. There are two cases of difference in use: In OpenCL 1.2, clCreateImage2D and clCreateImage3D has been merged into a single function clCreateImage; another difference is OpenCL 1.2 added clEnqueueFillBuffer for conveniently fill a buffer with a pattern, which is used in ocl function setTo.
+[This link](http://streamcomputing.eu/blog/2011-11-19/difference-between-opencl-1-2-and-1-1/) explains the differences between OpenCL 1.1 and OpenCL 1.2. There are two cases of difference in use: In OpenCL 1.2, `clCreateImage2D` and `clCreateImage3D` has been merged into a single function `clCreateImage`; another difference is OpenCL 1.2 added `clEnqueueFillBuffer` for conveniently fill a buffer with a pattern, which is used in ocl function `setTo`.
 In both cases, we separate codes in different code blocks guarded with `CL_VERSION_1_2` macro. Also we enable `CL_USE_DEPRECATED_OPENCL_1_1_APIS` to avoid build errors on some platforms, where deprecated APIs are defaultly disabled.
 
 
 ## Double precision floating point support
 
-For some algorithms, double precision floating point is required for higher precision, e.g., sum, integral and SURF. Despite the fact that not all devices support double and AMD has its own low performance `cl_amd_fp64` extension, we added a function `setFloatPrecision` to let the user to set the double support behaviour. Also the kernel files are added with macros to determine whether or not to enable this feature.
+For some algorithms, double precision floating point is required for higher precision, e.g., `sum`, `integral` and `SURF`. Despite the fact that not all devices support double and AMD has its own low performance `cl_amd_fp64` extension, we added a function `setFloatPrecision` to let the user to override default double support behaviour. Also the kernel files are added with macros to determine whether or not to enable this feature.
 
 ## CPU specific accuracy problems
 
 
 Most of the time we found that CPU’s accuracy problem is related to wavefront/warp size of a CPU. Here the term warp size means the number of synchronized threads to be executed without barriers. For CPU, [the theoretic wavefront size is 1](http://devgurus.amd.com/thread/145744), even when number of CPU cores is 4.
 
-For example, a typical solution (scan) for summing 32 numbers with 16 threads parallelly would be:
+For example, a typical solution (local `scan`) for summing 32 numbers with 16 threads parallelly would be:
 
 {% highlight cpp %}
 __local int data [32] = {...};
@@ -104,9 +104,9 @@ if(tid < 2)  data[tid] += data[tid + 2];  barrier(CLK_LOCAL_MEM_FENCE);
 if(tid < 1)  data[tid] += data[tid + 1];  barrier(CLK_LOCAL_MEM_FENCE);
 {% endhighlight %}
 
-When execution finishes, `data[0]` has the total sum of all 32 numbers in local memory data. To achieve best performance, on GPUs the barriers in the example above are not necessary and can be eliminated. This was true during the early development stages that we only had AMD and Nvidia GPUs whose wavefront size is at least 32 (32 for nvidia and 64 for AMD GPU’s); however for CPU’s the number is always 1, meaning that we need to synchronize each of the additions with a barrier; and even worse, we found that Intel GPU’s wavefront size may vary depending on target kernel. 
+When execution finishes, `data[0]` has the total sum of all 32 numbers in local memory data. To achieve best performance, on GPUs *some* of the barriers in the example above are not necessary and can be eliminated. This was true during the early development stages that we only had AMD and Nvidia GPUs whose wavefront size is at least 32 (32 for nvidia and 64 for AMD GPU’s); however for CPU’s the number is always 1, meaning that we need to synchronize each of the additions with a barrier; and even worse, we found that Intel GPU’s wavefront size may vary depending on target kernel. 
 
-Although assuming wavefront size is 1 and adding barrier behind each scan operations can resolve this issue in general, it is not performance efficient. In implementation perspective, for convenience we add a function `queryDeviceInfo()` to query device wavefront size and let the developer to control these synchronization operations in kernels. At the moment, we have SURF, HOG and pyrlk using this feature. Nevertheless, a source pointed out that optimization relies on wavefront size is not portable; it is highly suggested to pass macros to determine the presence of barriers in compilation time.
+Although assuming wavefront size is 1 and adding barrier behind each scan operations can resolve this issue in general, it is not performance efficient. In implementation perspective, for convenience we add a function `queryDeviceInfo()` to query device wavefront size and let the developer to control these synchronization operations in kernels. At the moment, we have `SURF`, `HOG` and `pyrlk` using this feature. Nevertheless, a source pointed out that optimization relies on wavefront size is not portable; it is highly suggested to pass macros to determine the presence of barriers in compilation time.
 
 ## Passing arguments to kernels
 
@@ -134,11 +134,11 @@ Remember, the value passed to kernel is a pointer. So its content should be ensu
 
 ## Using macros to simulate C++ templates
 
-As far as we know, only AMD’s OpenCL sdk (since AMD APP SDK version 2.6) support C++ templates for OpenCL C programs. We cannot rely on it as we need to maximum code portability. This, however, can be partially simulated by passing type defines to build options. We have written many kernels in this way to eliminate definition duplications, for example, add/sub, and/or/xor operators, brute force matchers, etc.
+As far as we know, only AMD’s OpenCL sdk (since AMD APP SDK version 2.6) support [C++ templates for OpenCL C programs](http://developer.amd.com/wordpress/media/2012/10/CPP_kernel_language.pdf). We cannot rely on it as we need to maximum code portability. This, however, can be partially simulated by passing type defines to build options. We have written many kernels in this way to eliminate definition duplications, for example, add/sub, and/or/xor operators, brute force matchers, etc.
 
 #### Pass constant macro defines instead of variadic arguments
 
-At the time optimizing BruteForceMatcher and stereobm we attempted to add macro definitions into build options when building OpenCL programs on host. Surprisingly the simple change gave a very significant performance gain. The reason, we assumed, is that these parameters are originally acting as looping counts in kernels and thus OpenCL compiler is given a hint to unroll loops if the looping counts are constant numbers defined with macros. Similarly, this can also applied to if/switch conditions.
+At the time optimizing `BruteForceMatcher` and `stereobm` we attempted to add macro definitions into build options when building OpenCL programs on host. Surprisingly the simple change gave a very significant performance gain. The reason, we assumed, is that these parameters are originally acting as looping counts in kernels and thus OpenCL compiler is given a hint to unroll loops if the looping counts are constant numbers defined with macros. Similarly, this can also applied to `if`/`switch` conditions.
 
 ## Build error on Mac OS
 
@@ -164,9 +164,9 @@ We found that on Mac OS `<<` or `>>` operator in #define statement is not allowe
 
 # Appendix
 
-#### Common practices to avoid out-of-bounds access (found when debugging stereo bp, facedetect and Canny)
+#### Common practices to avoid out-of-bounds access (found when debugging `stereobp`, `facedetect` and `Canny`)
 
-When copying from host memory to device memory, the device memory is often padded with blank data to make sure the step size in bytes of each row is multiples of a constant number(which is 32 at the moment), while the height of the oclMat remains the same. So that out-of-bounds access is fine when `x` offset is less than `step/elemSize()`, but for `y` offsets developers must make sure never step out of the range `[0, rows)`. We noticed that some crashes for stereobp, facedetect and Canny are all fixed by adding a simple clamping operation.
+When copying from host memory to device memory, the device memory is often padded with blank data to make sure the step size in bytes of each row is multiples of a constant number(which is 32 at the moment), while the height of the `oclMat` remains the same. So that out-of-bounds access is fine when `x` offset is less than `step/elemSize()`, but for `y` offsets developers must make sure never step out of the range `[0, rows)`. We noticed that some crashes for `stereobp`, `facedetect` and `Canny` are all fixed by adding a simple clamping operation.
 
 ![clamping](/image/post/appendix_p1.png)
 
