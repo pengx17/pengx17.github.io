@@ -106,7 +106,19 @@ if(tid < 1)  data[tid] += data[tid + 1];  barrier(CLK_LOCAL_MEM_FENCE);
 
 When execution finishes, `data[0]` has the total sum of all 32 numbers in local memory data. To achieve best performance, on GPUs *some* of the barriers in the example above are not necessary and can be eliminated. This was true during the early development stages that we only had AMD and Nvidia GPUs whose wavefront size is at least 32 (32 for nvidia and 64 for AMD GPU’s); however for CPU’s the number is always 1, meaning that we need to synchronize each of the additions with a barrier; and even worse, we found that Intel GPU’s wavefront size may vary depending on target kernel. 
 
-Although assuming wavefront size is 1 and adding barrier behind each scan operations can resolve this issue in general, it is not performance efficient. In implementation perspective, for convenience we add a function `queryDeviceInfo()` to query device wavefront size and let the developer to control these synchronization operations in kernels. At the moment, we have `SURF`, `HOG` and `pyrlk` using this feature. Nevertheless, a source pointed out that optimization relies on wavefront size is not portable; it is highly suggested to pass macros to determine the presence of barriers in compilation time.
+Although assuming wavefront size is 1 and adding barrier behind each scan operations can resolve this issue in general, <del>it is not performance efficient</del> *see the update below*. In implementation perspective, for convenience we add a function `queryDeviceInfo()` to query device wavefront size and let the developer to control these synchronization operations in kernels. At the moment, we have `SURF`, `HOG` and `pyrlk` using this feature. Nevertheless, a source pointed out that optimization relies on wavefront size is not portable; it is highly suggested to pass macros to determine the presence of barriers in compilation time.
+
+**update**
+
+On AMD APP Programming guide, it stated:
+
+> The compiler automatically removes these barriers if the kernel
+specifies a `reqd_work_group_size` (see section 5.8 of the OpenCL Specification) that is less than the wavefront size.
+> Developers are strongly encouraged to include the barriers where appropriate,
+> and rely on the compiler to remove the barriers when possible, rather than
+> manually removing the barriers(). This technique results in more portable
+> code, including the ability to run kernels on CPU devices.
+
 
 ## Passing arguments to kernels
 
