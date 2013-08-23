@@ -2,13 +2,13 @@
 layout: post
 keywords: blog
 description: pengx's blog
-title: "OpenCL中的通用寄存器(GPR, General purpose vector)分析和优化"
+title: "OpenCL中的通用寄存器(GPR, General purpose vector)分析和优化心得"
 categories: [OpenCL]
 tags: [OpenCL, GPR, VGPR]
 group: archive
 icon: code
 ---
-OpenCL的核函数(kernel function)运行效率有一个很重要的指标是核函数占用率(kernel occupancy)。
+OpenCL的核函数(kernel function)运行效率有一个很重要的指标是核函数占用率(kernel occupancy)。这个占用百分比主要跟三个因素相关：
 
 1. Work-group size 大小
 1. VGPR/SGPR的个数
