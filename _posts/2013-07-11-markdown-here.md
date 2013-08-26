@@ -8,6 +8,7 @@ tags: [Markdown]
 group: archive
 featured: true
 icon: file-alt
+tldr: true
 ---
 今天写邮件的时候想到，如果Gmail能提供一个插件用Markdown来写邮件，那邮件排版该多么容易！
 于是xp就搜了下GMail Lab, 很遗憾的是，没有，<del>说好的谷人希呐</del>？
@@ -78,6 +79,12 @@ Markdown Here不仅仅只支持GMail邮件。只要是支持富内容编辑(Rich
 遗憾的是这种转换是单向的。已经发出去的邮件，我们是无法把已经转化的邮件内容再还原为为Markdown文本，这给我们将来编辑修改之前的邮件风格产生了不便，除非自己在本地保留一份Markdown格式的原本，或者使用一些把[HTML转化成Markdown文本的工具][3]。
 
 希望作者或者社区的人能增加反向转换功能啊！<del>谜之声，这个不是开源的吗为什么你自己不去干？</del>
+
+附上我的Markdown Here的CSS:
+
+<!-- more -->
+
+{% gist 5983208 %}
 
 [1]: http://markdown-here.com/index.html
 [2]: https://groups.google.com/d/msg/markdown-here/UwCTtsiWG5w/1ytDvFLz8z0J
