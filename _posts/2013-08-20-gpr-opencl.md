@@ -2,7 +2,7 @@
 layout: post
 keywords: blog
 description: pengx's blog
-title: "OpenCL中的通用寄存器(GPR, General purpose vector)分析和优化心得"
+title: "OpenCL中的通用寄存器(GPR, General Purpose Register)分析和优化心得"
 categories: [OpenCL]
 tags: [OpenCL, GPR, VGPR]
 group: archive
@@ -12,14 +12,24 @@ OpenCL的核函数(kernel function)运行效率有一个很重要的指标是核
 
 1. Work-group size 大小
 1. VGPR/SGPR的个数
-1. LDS大小
+1. LDS(Local Data Share)大小
 
 笔者在AMD的官方文档中没有发现对于VGPR的详细介绍。这里，我们重点讲一下我对于VGPR的理解和发现的优化思路。
+
+利用AMD APP Profilier或者CodeXL可以方便的获得对于当前硬件核函数占用率的瓶颈在哪里，如下图：
+![app_profilier](/image/post/app_profilier_gpu_counter.png)
+
+上图中我们可以看到三个曲线图。显然在这个函数中，VGPR的个数严重限制了计算单元能够同时执行的线程数。
+在这个例子中，VGPR的个数有25个，导致核函数占有率只有8/32 = 25%。
+如果我们能把VGPR的个数减少到20个，就能把占用率提高到12/32 = 37.5%（可把鼠标移动到图表上观察到）；甚至更低 - 12个VGPR时占用率将提高到62.5%。
+
 
 两条基本的原则是：
 
 1. VGPR的曲线和Work-group的大小有关系。
 1. Work-group的大小在1~256之间，对于AMD来说在64的倍数的时候性能是最好的。
+
+实际优化调试过程中，用户必须根据自己的情况反复尝试改变算法的核函数实现方法，观察VGPR的个数和使用量。必要时，可能会对work-group的大小进行调节。
 
 本文的主要测试平台为非GCN架构的Evergreen的Redwood和Northern Islands的笔记本显卡，因此没有SGPR。VGPR的个数通过AMD APP KernelAnalyer离线编译核函数得到。
 
@@ -30,7 +40,7 @@ OpenCL的核函数(kernel function)运行效率有一个很重要的指标是核
 </div>
 
 
-我们先看三段代码片段。
+我们来看一下以下三段代码片段。
 
 ###片段A###
 ```c++
