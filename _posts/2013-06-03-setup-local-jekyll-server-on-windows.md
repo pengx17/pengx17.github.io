@@ -71,29 +71,31 @@ $(function () {
 
 1，[Jekyll的header和tag默认不支持UTF-8](http://log.medcl.net/item/2012/04/jekyll-encounter-encoding-problems/)，我们需要修改以下两个文件：
 
-    # 目标文件 
-    # rubypath\lib\ruby\gems\2.0.0\gems\jekyll-1.0.2\lib\jekyll\convertible.rb
-    # source = File.read(@file)
-    # 替换为
-    source = File.read(@file, :encoding => "utf-8")
+```diff
+--- rubypath\lib\ruby\gems\2.0.0\gems\jekyll-1.0.2\lib\jekyll\convertible.rb
++++ rubypath\lib\ruby\gems\2.0.0\gems\jekyll-1.0.2\lib\jekyll\convertible.rb
+@@ 搜索替换下面这行
+-   source = File.read(@file)
++   source = File.read(@file, :encoding => "utf-8")
 
-    # 目标文件 
-    # rubypath\lib\ruby\gems\2.0.0\gems\jekyll-1.0.2\lib\jekyll\tags\include.rb
-    # self.content = File.read(File.join(base, name))
-    # 替换为
-    self.content = File.read(File.join(base, name), :encoding => "utf-8")
-
+--- rubypath\lib\ruby\gems\2.0.0\gems\jekyll-1.0.2\lib\jekyll\tags\include.rb
++++ rubypath\lib\ruby\gems\2.0.0\gems\jekyll-1.0.2\lib\jekyll\tags\include.rb
+-   self.content = File.read(File.join(base, name))
++   self.content = File.read(File.join(base, name), :encoding => "utf-8")
+```
 2，[修复Windows上面关于分页的问题](https://github.com/mojombo/jekyll/pull/1058):
-    
-    # 目标文件
-    # rubypath\lib\ruby\gems\2.0.0\gems\jekyll-1.0.2\lib\jekyll\generators\pagination.rb
-    # 下面两行
-    # format = File.basename(site_config['paginate_path'])
-    # format.sub(':num', num_page.to_s)
-    # 替换为
-    format = site_config['paginate_path']
-    format = format.sub(':num', num_page.to_s)
-    File.basename(format)
+
+```diff
+--- rubypath\lib\ruby\gems\2.0.0\gems\jekyll-1.0.2\lib\jekyll\generators\pagination.rb
++++ rubypath\lib\ruby\gems\2.0.0\gems\jekyll-1.0.2\lib\jekyll\generators\pagination.rb
+@@ -92,8 +92,9 @@ def self.subdirectories_identical(paginate_path, page_dir)
+-   format = File.basename(site_config['paginate_path'])
+-   format.sub(':num', num_page.to_s)
+
++   format = site_config['paginate_path']
++   format = format.sub(':num', num_page.to_s)
++   File.basename(format)
+```
 
 <div class="alert alert-success">
   <h4>Done！</h4>
