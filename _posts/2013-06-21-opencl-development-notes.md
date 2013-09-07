@@ -58,6 +58,32 @@ To fix this kind of issue, our suggestion is to isolate the problematic kernel b
 When a kernel has out-of-bounds access on nvidia GPU we found that the kernel often works fine, but its subsequent kernels on the command queue may throw `CL_OUT_OF_RESOURCES` error upon being started. 
 
 
+## OpenCL buffer object default value pitfall
+
+In our experiments, on Intel and AMD platforms, OpenCL buffers will be initialized to a certain value as soon as
+they are created via `clCreateBuffer`; for NVIDIA, the value is undefined and even can be a `NaN` value. 
+
+We sometime happend to encounter a situation that on NVIDIA platform the output is not stable in iterations of kernel startups. It turns out to be a bug of unintialized buffer when kernel is not well written.
+
+Let's look at the following code, that we want to sum a vector of integers multiplies a value `p` (just for demonstration purpose):
+
+```c++
+// input = [1000, 2000, 3000]
+// output is expected to be 6
+// local size  = [4, 1] 
+// global size = [4, 1]
+kernel void function(const global int * input, global int * output)
+{
+    const float p = 0.001f;
+    atomic_add(output, p * input[get_global_id(0)]);
+}
+```
+
+This kernel does not check out-of-bound access and it will read and add another value at position `input[3]`.
+We assume `input[3]` is not initialized and the runtime default values for AMD and Intel SDKs is always smaller than 1000. On AMD and Intel, the kernel can return correct result; but for NVIDIA it is sometimes assigned with `NaN` and pollute the whole `ouput` value while in another runs the output is correct, which make it really hard to figure out where the kernel goes wrong in a complex circumstance.
+
+Anyhow, we should as possible as we can to avoid out-of-bound read - although it did happen now and then :P
+
 ## Intel platform: OpenCL programs build failures
 
 The issues can be reproduced on Intel OpenCL SDK 2.0 (OpenCL 1.1) and 3.0 (OpenCL 1.2). We came across two issues which cause the Intel OpenCL compiler fail to build OpenCL programs. 
@@ -88,7 +114,6 @@ In both cases, we separate codes in different code blocks guarded with `CL_VERSI
 For some algorithms, double precision floating point is required for higher precision, e.g., `sum`, `integral` and `SURF`. Despite the fact that not all devices support double and AMD has its own low performance `cl_amd_fp64` extension, we added a function `setFloatPrecision` to let the user to override default double support behaviour. Also the kernel files are added with macros to determine whether or not to enable this feature.
 
 ## CPU specific accuracy problems
-
 
 Most of the time we found that CPU’s accuracy problem is related to wavefront/warp size of a CPU. Here the term warp size means the number of synchronized threads to be executed without barriers. For CPU, [the theoretic wavefront size is 1](http://devgurus.amd.com/thread/145744), even when number of CPU cores is 4.
 
@@ -150,7 +175,7 @@ As far as we know, only AMD’s OpenCL sdk (since AMD APP SDK version 2.6) suppo
 
 #### Pass constant macro defines instead of variadic arguments
 
-At the time optimizing `BruteForceMatcher` and `stereobm` we attempted to add macro definitions into build options when building OpenCL programs on host. Surprisingly the simple change gave a very significant performance gain. The reason, we assumed, is that these parameters are originally acting as looping counts in kernels and thus OpenCL compiler is given a hint to unroll loops if the looping counts are constant numbers defined with macros. Similarly, this can also applied to `if`/`switch` conditions.
+At the time optimizing `BruteForceMatcher` and `stereobm` we attempted to add macro definitions into build options when building OpenCL programs on host. Surprisingly the simple change gave a very significant performance gain. The reason, we assumed, is that these parameters are originally acting as looping counts in kernels and thus OpenCL compiler is given a hint to unroll loops if the looping counts are constant numbers defined with macros. Similarly, this can also applied to `if`/`switch` conditions. User usually do not need to specify `#pragma unroll` statement right before a `for` clause as the compiler will do this for you automatically; in contrast if user wants to manually unroll a loop without specifying a unroll loop value, the performance can be worse when the loop count is too large that it uses too much registers, etc.
 
 ## Build error on Mac OS
 
@@ -178,7 +203,7 @@ We found that on Mac OS `<<` or `>>` operator in #define statement is not allowe
 
 #### Common practices to avoid out-of-bounds access (found when debugging `stereobp`, `facedetect` and `Canny`)
 
-When copying from host memory to device memory, the device memory is often padded with blank data to make sure the step size in bytes of each row is multiples of a constant number(which is 32 at the moment), while the height of the `oclMat` remains the same. So that out-of-bounds access is fine when `x` offset is less than `step/elemSize()`, but for `y` offsets developers must make sure never step out of the range `[0, rows)`. We noticed that some crashes for `stereobp`, `facedetect` and `Canny` are all fixed by adding a simple clamping operation.
+When copying from host memory to device memory, the device memory is often padded with blank data to make sure the step size in bytes of each row is multiples of a constant number(which is 32 at the moment), while the height of the `oclMat` remains the same. This is to make sure data is aligned for best data accessing speed when read in row-major order. In this case, out-of-bounds access is fine when `x` offset is less than `step/elemSize()`, but for `y` offsets developers must make sure never step out of the range `[0, rows)`. We noticed that some crashes for `stereobp`, `facedetect` and `Canny` are all fixed by adding a simple clamping operation.
 
 ![clamping](/image/post/appendix_p1.png)
 
