@@ -54,7 +54,7 @@ PE中的4或5个ALU将协作完成一个VLIW指令。
 对于常见的计算机图形处理，操作的数据一般是RGBA各个颜色通道分别计算，
 VLIW这样的设计能提高ALU的占用率，减少GPU核心的时钟周期次数，从而提高GPU的运算效率，
 开发人员也可以借助向量化
-[(Vectorization)](http://en.wikipedia.org/wiki/Vectorization_(parallel_computing))
+[Vectorization](http://en.wikipedia.org/wiki/Vectorization_(parallel_computing))
 手动实现这个操作。
 另一方面，最差情况下，1个VLIW指令只含有1条原始指令，导致剩下的ALU会闲置，将会大大减少GPU的运算效率。
 
@@ -98,7 +98,7 @@ VLIW的问题在于Wavefront的线程可能有依赖性存在导致的GPU性能�
 个Wavefront信息的buffer，并且由于指令依赖性的分离（例如barrier同步指令），SIMD可以在一条指令结束后，跳到不同的Wavefront来进行工作，增加GPU设备的利用率。
 
 另一方面，由于指令的简化，编译器的优化也变得十分简单，而且更容易做性能优化。
-为VLIW由于架构的优化可能并不适合GCN架构，例如向量化（[Vectorization](http://en.wikipedia.org/wiki/Vectorization_(parallel_computing))）
+为VLIW由于架构的优化可能并不适合GCN架构，例如向量化[Vectorization](http://en.wikipedia.org/wiki/Vectorization_(parallel_computing))
 并不能在GCN架构上获得任何性能提高，反而可能会由于指令的依赖性导致GPU不能更大程度的动态调整指令的分配。
 
 GCN与非GCN架构不同之处还在于每一个CU加入了一个单独的标量ALU。
