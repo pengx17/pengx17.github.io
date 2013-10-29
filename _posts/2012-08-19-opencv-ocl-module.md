@@ -28,7 +28,7 @@ Introduction to OpenCL
 <small>对于OpenCL已经有所了解的，可以直接跳过这一节。</small>
 
 > "OpenCL是用于编写在异构平台上运行程序的框架，所谓异构平台，一般情况我们指GPU和CPU两种处理器混合的平台。OpenCL由一门用于编写kernels （在OpenCL设备上运行的函数）的语言（基于C99）和一组用于定义并控制平台的API组成。"
-OpenCL可以实现[GPGPU]((http://en.wikipedia.org/wiki/GPGPU)（General-purpose computing on graphics processing units, 通用图形处理器）运算, 
+OpenCL可以实现[GPGPU](http://en.wikipedia.org/wiki/GPGPU)(General-purpose computing on graphics processing units, 通用图形处理器)运算, 
 > "(GPGPU)是一种利用处理图形任务的GPU来计算原本由CPU处理的通用计算任务。这些通用计算常常与图形处理没有任何关系。由于现代图形处理器强大的并行处理能力和可编程流水线，令流处理器可以处理非图形数据。特别在面对单指令流多数据流（SIMD），且数据处理的运算量远大于数据调度和传输的需要时，通用图形处理器在性能上大大超越了传统的中央处理器应用程序。" <small>摘自wikipedia</small>
 
 简单解释一下这段话中几个重点：
@@ -112,24 +112,18 @@ https://github.com/itseez/opencv
 Using OCL module
 ================
 
-使用ocl模块的方法跟gpu非常类似<del>（本来就是无脑移植什么的）</del>。调用ocl模块的任何模块前，必须明确的调用一下ocl名字空间下的`getDevice`函数，初始化OpenCL环境。
+使用ocl模块的方法跟gpu非常类似<del>（本来就是无脑移植什么的）</del>。
 
 为了跟gpu模块使用方式保持一致，目前官网的版本(2.4.6)的部分函数已经可以隐式的初始化OpenCL环境了，例如`ocl::Canny`。调用任意OpenCV函数后，会自动寻找环境中的OpenCL设备，并把找到的第一个加入全局中。
 
-{% highlight c++ %}
-
-vector<ocl::Info> info;  
-ocl::getDevice(info); 
-{% endhighlight %}
-
-`getDevice`函数会在你电脑中寻找是否有合适的含有GPU的OpenCL平台，并且返回可用的device设备数量。默认情况下，将会把找到的第一个平台的第一个设备的上下文`cl_context`和一个命令执行队列`cl_command_queue`加入到全局环境中的Context()。你还可以调用`ocl::setDevice()`手动选择使用的OpenCL设备。
+默认情况下，将会把找到的第一个平台的第一个设备的上下文`cl_context`和一个命令执行队列`cl_command_queue`加入到全局环境中的Context()。你还可以调用`ocl::setDevice()`手动选择使用的OpenCL设备。
 
 上文提到，所有的`ocl`模块调用的矩阵类型格式是`oclMat`。`oclMat`跟`Mat`结构类似，包含大部分的成员函数和成员变量，但是最重要的是封装了OpenCL的buffer数据(`cl_mem`)并控制他的内存释放与传输。
 
 把一个`Mat`转化成`oclMat`非常简单，你可以调用`oclMat`的构造函数：
 
 {% highlight c++ %}
-oclMat myOclMat = (oclMat)mat; // mat is a Mat object  
+oclMat myOclMat(mat); // mat is a Mat object  
 {% endhighlight %}
 
 oclMat的构造函数会自动复制据Mat的矩阵头(header)，如列、行数，元素类型，通道数等等，分配一个足够大小的设备储存，并且隐式的把cpu host上的内存转移到gpu device的显存上。如果用户想显示的转移（或者称为“上传”），可以调用：
@@ -146,14 +140,25 @@ mat = (Mat)myOclMat;
 myOclMat.download(mat);   
 {% endhighlight %}
 
-一般情况下，你不必担心`oclMat`数据的释放问题，因为跟`Mat`相同，它是有reference pointer控制显存的释放。有些情况下GPU显存十分紧张的时候，就需要用户自己去释放`oclMat`，或者考虑显存的重复利用。
+一般情况下，你不必担心`oclMat`数据的释放问题，因为跟`Mat`相同，它是有reference count控制显存的释放。有些情况下GPU显存十分紧张的时候，就需要用户自己去释放`oclMat`，或者考虑显存的重复利用。
 
-1. 概括地说，使用`ocl`模块有这么几个过程：
-2. 注册全局OpenCL设备。 //调用getDevice
-3. 把内存的数据上传到显存。//把`Mat`转化成`oclMat`
-4. 在OpenCL设备上进行计算。//调用`ocl`模块函数
-5. 把显存的数据下载到内存。//把`oclMat`转化成`Mat`
-6. 在host上进行剩余的运算。//调用`cv::`函数
+概括地说，使用`ocl`模块有这么几个过程：
+
+1. 注册全局OpenCL设备。    //此步可以省去，新版本的OpenCV会自动注册OpenCL设备
+1. 把内存的数据上传到显存。//把`Mat`转化成`oclMat`
+1. 在OpenCL设备上进行计算。//调用`ocl`模块函数
+1. 把显存的数据下载到内存。//把`oclMat`转化成`Mat`
+1. 在host上进行剩余的运算。//调用`cv::`函数
+
+<span class="label label-info">Info</span>
+虽然开发者已经尽量通过函数的封装减少了用户对于实际函数调用流程的透明度，但是用户使用模块前应了解以下几点：
+
+1. 尽量减少在OpenCL函数调用之间加入数据传输指令。这是因为上传下载操作会严重影响核函数在命令队列上的调度，尤其是下载操作，因为这个操作在库中被设计成同步指令。
+有的函数有隐式的下载调用，比如`cv::ocl::sum`，也应该尽量调整好执行的位置。
+1. 用户使用过程中会注意到，目前的OCL模块编译速度要比CUDA（GPU）模块快的多，后者可能要编译一小时以上。
+但是运行时，OCL模块的函数在第一次调用的时候会有很明显的延迟，但CUDA模块没有这种现象。
+这是因为CUDA模块在OpenCV编译之初就把核函数编译为cubin文件，这样在运行时就不会出现启动延迟，但是为了兼容不同的CUDA版本和CUDA文件的高度模版化，导致了相当漫长的编译；但是相比较OpenCL，我们不能在OCL函数运行之前就确定核函数的编译选项和目标运行平台，因此只能在运行时进行核函数的编译。
+作为一个补救措施，我们加入了一个功能，OCL模块在第一次运行时将把这一次编译好的核函数二进制文件保存到磁盘，这样下一次使用的时候就避免了编译造成的启动延迟。
 
 以下是OCL模块的例子SURF matcher的输出结果示例：
 ![SURF matcher](/image/post/surf_matcher.png)
@@ -168,4 +173,3 @@ PS
 鹏 
 
 August 19, 2012
-
