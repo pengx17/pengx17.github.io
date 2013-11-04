@@ -6,7 +6,7 @@ title: "Cross-platform development notes on OpenCL(英文)"
 categories: [opencl]
 tags: [OpenCV, OpenCL]
 group: archive
-icon: file-alt
+icon: fa-file-o
 tldr: true
 ---
 

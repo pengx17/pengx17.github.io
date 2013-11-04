@@ -7,7 +7,7 @@ categories: [Life]
 tags: [Markdown]
 group: archive
 featured: true
-icon: file-alt
+icon: fa-file-o
 tldr: true
 ---
 今天写邮件的时候想到，如果Gmail能提供一个插件用Markdown来写邮件，那邮件排版该多么容易！

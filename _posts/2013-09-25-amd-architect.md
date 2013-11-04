@@ -6,7 +6,7 @@ title: "AMD的显卡架构与OpenCL性能之间的一点思考"
 categories: [OpenCL]
 tags: [OpenCL]
 group: OpenCL
-icon: file-alt
+icon: fa-file-o
 ---
 ##Intro
 
