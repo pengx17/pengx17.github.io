@@ -64,11 +64,11 @@ html, body, div.wrapper {
 }
 
 /* font-awesome post信息按钮样式 */
-.icon-folder-open, .icon-tags, .icon-calendar {
+.fa fa-folder-open, .fa fa-tags, .fa fa-calendar {
   color:#A84365;
 }
 
-.icon-double-angle-right {
+.fa fa-double-angle-right {
   color: #FF6699;
 }
 
@@ -214,11 +214,11 @@ ul#support.dispear>li:first-child>a:hover {
   color: #CC527A;
 }
 
-ul#support.dispear>li:first-child>a>i.icon-star-empty {
+ul#support.dispear>li:first-child>a>i.fa fa-star-empty {
   color: #F3F3F3;
 }
 
-ul#support.dispear>li:first-child>a:hover>i.icon-star-empty {
+ul#support.dispear>li:first-child>a:hover>i.fa fa-star-empty {
   color: #E8175D;
 }
 
@@ -226,7 +226,7 @@ ul#support.dispear>li:first-child>a:hover>i.icon-star-empty {
   color: #CC527A;
 }
 
-.icon-ok, .icon-star-empty {
+.fa fa-ok, .fa fa-star-empty {
   color: #E8175D;
 }
 
@@ -258,7 +258,7 @@ table#post-data td, table#post-data th {
   color: #1077BC;
 }
 
-table#post-data .icon-calendar, table#post-data .icon-bookmark, table#post-data .icon-tags {
+table#post-data .fa fa-calendar, table#post-data .fa fa-bookmark, table#post-data .fa fa-tags {
   color: #1077BC;
 }
 
@@ -332,11 +332,11 @@ ul.time-list a {
   color: #FF6699;
 }
 
-ul.time-list a>i.icon-chevron-right{
+ul.time-list a>i.fa fa-chevron-right{
   color: #F3F3F3;
 }
 
-ul.time-list>li.active>a>i.icon-chevron-right {
+ul.time-list>li.active>a>i.fa fa-chevron-right {
   color: #333333;
 }
 

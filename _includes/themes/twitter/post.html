@@ -5,9 +5,9 @@
     <div class="post_info">
       {% unless page.categories == empty %}
       <ul class="tag_box inline list-inline">
-        <li><i class="icon-calendar"></i></li>
+        <li><i class="fa fa-calendar"></i></li>
         <li>{{ page.date | date: " %Y 年 %m 月 %d 日" }}</li>
-        <li><i class="icon-folder-open"></i></li>
+        <li><i class="fa fa-folder-open"></i></li>
         {% assign post_categories = page.categories %}
         {% include pengx/post_categories_info %}
       </ul>
