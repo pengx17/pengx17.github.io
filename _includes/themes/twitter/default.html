@@ -20,21 +20,18 @@
     <![endif]-->
 
     <!-- Le styles -->
-    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
-    <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.min.css" rel="stylesheet">
     <link href="/css/typo.css" rel="stylesheet">
     <link href="/css/style.css?body=1" rel="stylesheet" type="text/css" media="all">
     <link href="/css/syntax.css" rel="stylesheet" type="text/css" media="all">
-    <link href="/css/datatables-bootstrap.css" rel="stylesheet">
     <link href="/css/pengx.css" rel="stylesheet">
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,400' rel='stylesheet' type='text/css'>
     
-    
     <!-- javascript files -->
-    <script type="text/javascript" src="/js/jquery-2.0.0.min.js"></script>
-    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="/js/jquery.dataTables.min.js"></script>
-    <script type="text/javascript" src="/js/datatables-bootstrap.js"></script>
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.1/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="/js/pengx.js"></script>
     
     <link rel="shortcut icon" href="/image/favicon.ico">
@@ -57,10 +54,10 @@
   <body id="scroll-pane" data-spy="scroll" data-target="#time-list-nav">
     <div class="wrapper">
       <!-- 导航条 -->
-      <div class="navbar">
-        <div class="navbar-inner row-fluid">
-          <div class="span8 offset2">
-            <a class="brand" href="{{ HOME_PATH }}">
+      <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="row navbar-text">
+          <div class="col-md-8 col-md-offset-2">
+            <a class="navbar-brand" href="{{ HOME_PATH }}">
                 <span class="site-author"> {{ site.author.name }} </span>
                 <small><span class="site-title"> {{ site.title }} </span></small>
             </a>
@@ -71,14 +68,14 @@
             </ul>
           </div>
         </div>
-      </div>
+      </nav>
 
       <!-- 正文 -->
       {{ content }}
       <!-- 底部声明 -->
-      <div class="row-fluid bottom">
+      <div class="row bottom">
         <small>
-          <div class="span8 text-center offset2">
+          <div class="col-md-8 text-center col-md-offset-2">
             本作品采用<a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/deed.zh">知识共享署名-相同方式共享 3.0 未本地化版本许可协议</a>进行许可。<br/>Theme by <a href="https://github.com/codepiano/codepiano.github.com">[Codepiano]</a>
           </div>
         </small>

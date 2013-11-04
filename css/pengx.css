@@ -98,12 +98,12 @@ blockquote p {
 }
 
 /* 覆盖bootstrap导航条设置 */
-.navbar  a.brand {
+.navbar  a.navbar-brand {
   height: auto;
   padding: 5px 20px 0px;
 }
 
-.navbar .span8 {
+.navbar .col-md-8 {
   background: 180px 100px url('/image/giant-head.png') no-repeat;
   
   -webkit-transition: all 0.4s ease-in-out;
@@ -112,7 +112,7 @@ blockquote p {
           transition: all 0.4s ease-in-out;
 }
 
-.navbar .span8:hover {
+.navbar .col-md-8:hover {
   /*background: 180px url('/image/giant-head.png') no-repeat;*/
 }
 
