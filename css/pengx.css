@@ -100,12 +100,9 @@ blockquote p {
 /* 覆盖bootstrap导航条设置 */
 .navbar  a.navbar-brand {
   height: auto;
-  padding: 5px 20px 0px;
 }
 
 .navbar .col-md-8 {
-  background: 180px 100px url('/image/giant-head.png') no-repeat;
-  
   -webkit-transition: all 0.4s ease-in-out;
      -moz-transition: all 0.4s ease-in-out;
        -o-transition: all 0.4s ease-in-out;
@@ -121,15 +118,19 @@ blockquote p {
   height:auto;
 }
 
-.navbar>.navbar-inner{
+.navbar>.container{
   padding-left: 0px;
   padding-right: 0px;
   border-left: none;
   border-right: none;
 }
 
+.navbar>.container ul li{
+  float: left;
+}
+
 /* 覆盖导航条激活菜单的背景色设置 */
-.navbar .nav>.active>a, .navbar .nav>.active>a:hover, .navbar .nav>.active>a:focus {
+.nav>li>a, .nav>li>a:hover, .nav>li>a:focus {
   background-color: transparent;
   box-shadow:none;
 }
@@ -367,23 +368,6 @@ h2.title
 .post h4
 {
   text-shadow: 1px 1px 2px #D0D0D0;
-}
-
-/* 微博分享按钮的鼠标动画效果 */
-.weibo-share {
-  opacity:0.1;
-  float: right;
-  position: relative;
-  margin: -1.4em;
-  
-  -webkit-transition: opacity 0.2s ease-in-out;
-     -moz-transition: opacity 0.2s ease-in-out;
-       -o-transition: opacity 0.2s ease-in-out;
-          transition: opacity 0.2s ease-in-out;
-}
-
-.weibo-share:hover {
-  opacity:1;
 }
 
 /* 帖子板块的鼠标动画效果 */
