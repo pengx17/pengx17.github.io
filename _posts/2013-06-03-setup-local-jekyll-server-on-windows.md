@@ -6,7 +6,7 @@ title: "在Windows上建立Jekyll平台"
 categories: [learning, jekyll]
 tags: [jekyll]
 group: archive
-icon: fa-file-o
+icon: file-o
 featured: true
 ---
 

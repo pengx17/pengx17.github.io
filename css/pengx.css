@@ -114,7 +114,7 @@ blockquote p {
 }
 
 .navbar ul.nav {
-  padding: 10px 20px 10px;
+  padding: 5px 20px 0px;
   height:auto;
 }
 
@@ -123,6 +123,7 @@ blockquote p {
   padding-right: 0px;
   border-left: none;
   border-right: none;
+  width: 100%;
 }
 
 .navbar>.container ul li{
@@ -262,12 +263,18 @@ table#post-data .fa fa-calendar, table#post-data .fa fa-bookmark, table#post-dat
   color: #1077BC;
 }
 
+table .post-date{
+  width: 12em;
+}
+
 table#post-data a:hover {
   color: #FF6699;
 }
 
+/*  */
 div.row {
   margin-left: 0px;
+  margin-right: 0px;
 }
 
 /* 覆盖bootstrap默认的tooltip设置 */
@@ -338,6 +345,22 @@ ul.time-list a>i.fa fa-chevron-right{
 
 ul.time-list>li.active>a>i.fa fa-chevron-right {
   color: #333333;
+}
+
+ul#time-list-ul a{
+  margin-bottom: -3px;
+  border: 1px solid #ddd;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+}
+
+ul#time-list-ul a:hover{
+  background-color: #ddd;
+}
+
+ul.nav-tabs {
+  border-bottom: none;
 }
 
 /* about样式 */

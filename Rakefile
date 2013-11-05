@@ -68,7 +68,7 @@ task :post do
     post.puts "categories: [Archive]"
     post.puts "tags: [Archive]"
     post.puts 'group: archive'
-    post.puts 'icon: fa-file-o'
+    post.puts 'icon: file-o'
     post.puts "---"
   end
 end # task :post
