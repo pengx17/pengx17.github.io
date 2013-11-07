@@ -37,20 +37,20 @@ title: pengx17
   {% endfor %}
   
   <!-- 分页页码展示 -->
-  <div id="post-pagination" class="pagination pagination-centered">
-    <ul>
+  <div id="post-pagination" class="text-center">
+    <ul class="pagination">
       <!-- 上一页按钮 -->
       {% if paginator.previous_page %}
       <li>
         {% if paginator.previous_page == 1 %}
-        <a href="/"><i class="icon-chevron-left"></i></a>
+        <a href="/"><i class="fa fa-chevron-left"></i></a>
         {% else %}
         <a href="/page{{ paginator.previous_page }}"><i class="icon-chevron-left"></i></a>
         {% endif %}
       </li>
       {% else %}
       <li class="disabled">
-      <span><i class="icon-chevron-left"></i></span>
+      <span><i class="fa fa-chevron-left"></i></span>
       </li>
       {% endif %}
 
@@ -79,11 +79,11 @@ title: pengx17
 
       {% if paginator.next_page %}
       <li>
-      <a href="/page{{ paginator.next_page }}"><i class="icon-chevron-right"></i></a>
+      <a href="/page{{ paginator.next_page }}"><i class="fa fa-chevron-right"></i></a>
       </li>
       {% else %}
       <li class="disabled">
-      <a href="#"><i class="icon-chevron-right"></i></a>
+      <a href="#"><i class="fa fa-chevron-right"></i></a>
       </li>
       {% endif %}
     </ul>

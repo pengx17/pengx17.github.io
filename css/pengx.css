@@ -152,14 +152,28 @@ ul.tag_box > li:first-child {
 /* 标题栏文字样式 */
 .site-title {
   color: #1B813F;
+  -webkit-transition: all 0.2s ease-in-out;
+     -moz-transition: all 0.2s ease-in-out;
+       -o-transition: all 0.2s ease-in-out;
+          transition: all 0.2s ease-in-out;
+}
+
+.site-title:hover {
+  text-shadow: #1B813F 0px 0px 15px;
 }
 
 .site-author {
   color: #169FDE;
   font-size: 28px;
+  -webkit-transition: all 0.2s ease-in-out;
+     -moz-transition: all 0.2s ease-in-out;
+       -o-transition: all 0.2s ease-in-out;
+          transition: all 0.2s ease-in-out;
 }
 
-
+.site-author:hover {
+  text-shadow: #169FDE 0px 0px 30px;
+}
 
 /* 底部div定位 */
 div.wrapper>div.typo{
