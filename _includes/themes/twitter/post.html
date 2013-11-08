@@ -1,46 +1,48 @@
 <div class="row typo">
-  <div class="col-md-8 col-md-offset-2 typo well post post-full">
-	{% if page.featured %} {% include pengx/featured_post_decoration %} {% endif %}
-    <h2 class="title">{{ page.title }} {% if page.tagline %}<small>{{page.tagline}}</small>{% endif %}</h2>
-    <div class="post_info">
-      {% unless page.categories == empty %}
-      <ul class="tag_box inline list-inline">
-        <li><i class="fa fa-calendar"></i></li>
-        <li>{{ page.date | date: " %Y 年 %m 月 %d 日" }}</li>
-        <li><i class="fa fa-folder-open"></i></li>
-        {% assign post_categories = page.categories %}
-        {% include pengx/post_categories_info %}
-      </ul>
-      {% endunless %}  
+  <div class="col-md-8 col-md-offset-2 typo">
+      <div class="well post post-full">
+        {% if page.featured %} {% include pengx/featured_post_decoration %} {% endif %}
+        <h2 class="title">{{ page.title }} {% if page.tagline %}<small>{{page.tagline}}</small>{% endif %}</h2>
+        <div class="post_info">
+          {% unless page.categories == empty %}
+          <ul class="tag_box inline list-inline">
+            <li><i class="fa fa-calendar"></i></li>
+            <li>{{ page.date | date: " %Y 年 %m 月 %d 日" }}</li>
+            <li><i class="fa fa-folder-open"></i></li>
+            {% assign post_categories = page.categories %}
+            {% include pengx/post_categories_info %}
+          </ul>
+          {% endunless %}  
+        </div>
+        <div class="content">
+          {{ content }}
+        </div>
+        {% unless page.tags == empty %}
+        <ul class="tag_box inline list-inline">
+          <li><i class="icon-tags"></i></li>
+          {% assign tags_list = page.tags %}
+          {% include pengx/tags_list %}
+        </ul>
+        {% endunless %}  
+        <hr>
+        <div class="pull-right">
+          <ul class="pagination">
+            {% if page.previous %}
+            <li class="prev"><a href="{{ BASE_PATH }}{{ page.previous.url }}" title="{{ page.previous.title }}">&larr; Previous</a></li>
+            {% else %}
+            <li class="prev disabled"><a>&larr; Previous</a></li>
+            {% endif %}
+            <li><a href="{{ BASE_PATH }}{{ site.pengx.archive_path }}">Archive</a></li>
+            {% if page.next %}
+            <li class="next"><a href="{{ BASE_PATH }}{{ page.next.url }}" title="{{ page.next.title }}">Next &rarr;</a></li>
+            {% else %}
+            <li class="next disabled"><a>Next &rarr;</a>
+            {% endif %}
+          </ul>
+        </div>
+        <br />
+        <div id="comment-hook"></div>
+        {% include pengx/comments %}
     </div>
-    <div class="content">
-      {{ content }}
-    </div>
-    {% unless page.tags == empty %}
-    <ul class="tag_box inline list-inline">
-      <li><i class="icon-tags"></i></li>
-      {% assign tags_list = page.tags %}
-      {% include pengx/tags_list %}
-    </ul>
-    {% endunless %}  
-    <hr>
-    <div class="pull-right">
-      <ul class="pagination">
-        {% if page.previous %}
-        <li class="prev"><a href="{{ BASE_PATH }}{{ page.previous.url }}" title="{{ page.previous.title }}">&larr; Previous</a></li>
-        {% else %}
-        <li class="prev disabled"><a>&larr; Previous</a></li>
-        {% endif %}
-        <li><a href="{{ BASE_PATH }}{{ site.pengx.archive_path }}">Archive</a></li>
-        {% if page.next %}
-        <li class="next"><a href="{{ BASE_PATH }}{{ page.next.url }}" title="{{ page.next.title }}">Next &rarr;</a></li>
-        {% else %}
-        <li class="next disabled"><a>Next &rarr;</a>
-        {% endif %}
-      </ul>
-    </div>
-    <br />
-    <div id="comment-hook"></div>
-    {% include pengx/comments %}
   </div>
 </div>
