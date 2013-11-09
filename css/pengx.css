@@ -241,6 +241,10 @@ ul#support.dispear>li:first-child>a:hover>i.fa fa-star-empty {
   color: #CC527A;
 }
 
+.nav-tabs>li.active>a {
+  border-bottom-color: #ddd;
+}
+
 .fa fa-ok, .fa fa-star-empty {
   color: #E8175D;
 }
