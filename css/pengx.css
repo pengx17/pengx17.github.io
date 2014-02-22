@@ -152,14 +152,28 @@ ul.tag_box > li:first-child {
 /* 标题栏文字样式 */
 .site-title {
   color: #1B813F;
+  -webkit-transition: all 0.2s ease-in-out;
+     -moz-transition: all 0.2s ease-in-out;
+       -o-transition: all 0.2s ease-in-out;
+          transition: all 0.2s ease-in-out;
+}
+
+.site-title:hover {
+  text-shadow: #1B813F 0px 0px 15px;
 }
 
 .site-author {
   color: #169FDE;
   font-size: 28px;
+  -webkit-transition: all 0.2s ease-in-out;
+     -moz-transition: all 0.2s ease-in-out;
+       -o-transition: all 0.2s ease-in-out;
+          transition: all 0.2s ease-in-out;
 }
 
-
+.site-author:hover {
+  text-shadow: #169FDE 0px 0px 30px;
+}
 
 /* 底部div定位 */
 div.wrapper>div.typo{
@@ -225,6 +239,10 @@ ul#support.dispear>li:first-child>a:hover>i.fa fa-star-empty {
 
 #support.show a {
   color: #CC527A;
+}
+
+.nav-tabs>li.active>a {
+  border-bottom-color: #ddd;
 }
 
 .fa fa-ok, .fa fa-star-empty {
@@ -437,12 +455,13 @@ h2.title
     position: relative;
 }
 
+
 /* 精华帖缎带的效果 */
 .featured-ribbon {
   position: absolute;
   background:url('/image/featured-small-full.png') no-repeat;
   width: 80px;
-  height: 25px;
+  height: 42px;
   margin-top: -24px;
   margin-left: -21px;
   padding-top: 15px;
@@ -471,7 +490,7 @@ del {
   background: #fff;
   box-shadow: 0 1px 2px rgba(0,0,0,0.15);
   border: 1px solid #ddd;
-  width: 100%;
+  max-width: 100%;
 }
 
 /* 帖子的特殊装饰 */

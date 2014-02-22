@@ -31,7 +31,7 @@ $(function () {
 **首先**, 从官网上下载`Ruby on Windows`，`Ruby DevKit`和`Python 2.7`。
 下载页：[http://rubyinstaller.org/downloads/](http://rubyinstaller.org/downloads/)。在写这篇文章的时候，作者安装的分别是: [Ruby 2.0.0-p195 (x64)](http://rubyforge.org/frs/download.php/76958/ruby-2.0.0-p195-x64-mingw32.7z) 和 [DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe](http://rubyforge.org/frs/download.php/76808/DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe)。
 
-<div class="alert alert-block">
+<div class="alert alert-warning">
   <strong>Warning!</strong>
   注意，Jekyll现在不支持Python 3.0+版本！
 </div>
@@ -63,7 +63,7 @@ $(function () {
 
     D:\rubydevkit>gem install jekyll
 
-<div class="alert alert-block">
+<div class="alert alert-warning">
   <h4>Warning!</h4>
   现在还没有完!
   为了确保Jekyll能正确使用，我们还得对Jekyll的代码加上两个补丁。
