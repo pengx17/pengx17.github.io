@@ -149,7 +149,7 @@ mark {
 
 /* 代码片断 */
 pre, code {
-	font-family: "Consolas", Consolas, "Microsoft Yahei", monospace;
+	font-family: "Consolas", Consolas, "Courier New", "Microsoft Yahei", monospace;
 	white-space: pre-wrap;
 	word-wrap: break-word;
 }
