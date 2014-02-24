@@ -46,11 +46,11 @@ register_libstdcxx_printers (None)
 end
 ```
 
-### 4. 修改Eclipse的gdb配置文件路径。
+#### 4. 修改Eclipse的gdb配置文件路径。
 > 修改 Run->Debug Configurations...->Debugger的GDB command file为`/home/pengx17/.gdbinit`
 
 
-### 完成！
+### 完成！\o/
 
 ----------------
 
