@@ -25,17 +25,18 @@ bar {...}
 
 于是乎xp在SO上找到了个[解决方案][1]。这里要借助一个叫做_Python libstdc++ printers_的插件来实现美化功能。
 
-#### 1. 安装python-gdb。
+#### 1. 安装python2.7和python-gdb
 
-> `sudo apt-get install gdb python2.7-dbg`
+    $> sudo apt-get install python2.7
+    $> sudo apt-get install gdb python2.7-dbg
 
 #### 2. 下载Python libstdc++ printers代码。
 
-> mkdir ~/python_printer
-> cd ~/python_printer
-> `svn co svn://gcc.gnu.org/svn/gcc/trunk/libstdc++-v3/python`
+    $> mkdir ~/python_printer
+    $> cd ~/python_printer
+    $> svn co svn://gcc.gnu.org/svn/gcc/trunk/libstdc++-v3/python
 
-#### 3. 修改gdb配置文件`~/.gdbinit`，如果没有就创建一个。以我的为例：
+#### 3. 修改并添加以下脚本gdb配置文件`~/.gdbinit`，如果没有就创建一个。这个以我的为例：
 
 ```python
 python
@@ -47,16 +48,10 @@ end
 ```
 
 #### 4. 修改Eclipse的gdb配置文件路径。
-> 修改 Run->Debug Configurations...->Debugger的GDB command file为`/home/pengx17/.gdbinit`
+> 修改`Run->Debug Configurations...->Debugger`的`GDB command file`为`/home/pengx17/.gdbinit`
 
 
 ### 完成！\o/
-
-----------------
-
-###参考
-
-[Better variable exploring when debugging C++ code with Eclipse/CDT][1]
 
 [1]: http://stackoverflow.com/questions/11320822/why-does-calling-method-through-null-pointer-work-in-c
 
