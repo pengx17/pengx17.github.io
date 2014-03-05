@@ -80,11 +80,11 @@ These all kinds of both new/old facts refreshed my attitude towards C. I knew C+
 ------
 
 #### References
-[[1]The ``Clockwise/Spiral Rule''][1]
+[The ``Clockwise/Spiral Rule''][1]
 
-[[2]Negative array indexes in c][2]
+[Negative array indexes in c][2]
 
-[[3]Designated Initializers][3]
+[Designated Initializers][3]
 
 [1]: http://c-faq.com/decl/spiral.anderson.html
 [2]: http://stackoverflow.com/questions/3473675/negative-array-indexes-in-c
