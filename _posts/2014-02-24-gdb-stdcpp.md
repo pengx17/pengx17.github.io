@@ -9,11 +9,11 @@ group: cpp
 icon: file-o
 ---
 
-最近一段时间需要在Ubuntu上做项目。为了方便开发，使用了Eclipse的C++插件来帮助调试。可是日常使用时经常遇到一个很麻烦的问题，Eclipse的调试器(也就是gdb）对C++的STL库的支持很差。比如我想查看一个`std::vector`的内容，用Visual Studio的调试器可以很方便的看到这个容器的大小和每个元素的值；不过，默认情况下，Eclipse/gdb就会显示下面这一陀对调试用处不大的东西：
+最近一段时间需要在Ubuntu上做项目。为了方便开发，使用了Eclipse的C++插件来帮助调试。可是日常使用时经常遇到一个很麻烦的问题，Eclipse的调试器(也就是gdb）对C++的STL库的支持很差。比如我想查看一个`std::vector`的内容，用Visual Studio的调试器可以很方便的看到这个容器的大小和每个元素的值，微软甚至提供给[用户自定义调试器显示容器内容的方法](http://msdn.microsoft.com/en-us/library/vstudio/jj620914.aspx)；不过，默认情况下，Eclipse/gdb就会显示下面这一陀对调试用处不大的东西：
 
 ```cpp
-bar {...}   
-    std::_Vector_base<TSample<MyTraits>, std::allocator<TSample<MyTraits> > >   
+bar {...}
+    std::_Vector_base<TSample<MyTraits>, std::allocator<TSample<MyTraits> > >
         _M_impl {...}   
             std::allocator<TSample<MyTraits> >  {...}   
             _M_start    0x00007ffff7fb5010  
