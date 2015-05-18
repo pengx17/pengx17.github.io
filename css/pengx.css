@@ -18,7 +18,7 @@ codepiano.github.io
 /* a标签样式 */
 a {
   text-decoration: none;
-  
+
   -webkit-transition: all 0.15s ease-in-out;
      -moz-transition: all 0.15s ease-in-out;
        -o-transition: all 0.15s ease-in-out;
@@ -92,7 +92,6 @@ blockquote {
 blockquote p {
   font-size: 15px;
   line-height: 1.8;
-  font-style: italic;
 }
 .typo blockquote p {
 	margin-bottom: 0em;
@@ -138,7 +137,7 @@ blockquote p {
 }
 
 .navbar .nav>li.active>a {
-  color:#EC6197; 
+  color:#EC6197;
 }
 
 /* 覆盖typo.css中ul默认的margin-left属性 */
@@ -423,7 +422,7 @@ float: none;
 hr.hr-strong {
   border-bottom: 5px groove #cfcfcf;
 }
- 
+
 h2.title
 {
   text-shadow: 2px 2px 2px #D0D0D0;
@@ -467,7 +466,7 @@ h2.title
   margin-left: -21px;
   padding-top: 15px;
   cursor: pointer;
-  
+
   /*
   -webkit-transition: margin-top 0.2s ease;
      -moz-transition: margin-top 0.2s ease;

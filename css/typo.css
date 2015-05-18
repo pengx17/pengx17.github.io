@@ -61,8 +61,10 @@ blockquote {
   font-weight: 300;
   font-family: Lantinghei SC, 'Helvetica Neue', 'Microsoft Yahei', 'Hiragino Sans GB', 'Microsoft Sans Serif', 'WenQuanYi Micro Hei', sans-serif;
   border-left: 1px solid #1abc9c;
-  padding-left: 1em;
-  margin: 1em 3em 1em 1em;
+  padding: 0.6em 1em;
+  margin: 1em 4em 1em 0;
+  border-left: 0.4em solid #ddd;
+  background: #f9f9f9;
 }
 
 @media only screen and ( max-width: 640px ) {
