@@ -92,6 +92,7 @@ blockquote {
 blockquote p {
   font-size: 15px;
   line-height: 1.8;
+  font-style: italic;
 }
 .typo blockquote p {
 	margin-bottom: 0em;
