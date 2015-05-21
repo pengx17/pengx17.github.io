@@ -205,5 +205,186 @@ val barista: ActorRef = system.actorOf(Props[Barista], "Barista")
 请注意，`ActorRef` 没有类型化参数。一个 `ActorRef` 可以被替换成任意一个其他的 `ActorRef`，这就允许我们把消息发送给任意的 `ActorRef` 引用对象。
 就像上面所提到的，这是Akka的特别设计 - 允许了你在改变行动者系统拓扑结构的同时不必对发送者进行任何修改。
 
+## 发送消息
 
-秃笔肯忒牛...
+现在我们已经实例化了一个 `Barista` actor和引用到它的 `ActorRef`，然后我们就可以发消息了。
+调用 `ActorRef` 的 `!` 方法：
+
+```scala
+barista ! CappuccinoRequest
+barista ! EspressoRequest
+println("I ordered a cappuccino and an espresso")
+```
+
+调用 `!` 是一个放射后不管(fire-and-forget)的操作：你*告诉* `Barista` 你要点一杯卡布奇诺，然而并不等待咖啡师的回应，
+这就是Akka中actor之间交互的最常见模式。调用此方法实际上的行为是，你让Akka把你的消息放置于接受者的邮箱队列里。
+上面介绍过，消息发送不是阻塞行为，消息的接受者最终会在将来的某时刻处理你发送的消息。
+
+Due to the asynchronous nature, the result of the above code is not deterministic. It might look like this:
+由于消息机制的不同步的性质，上面代码的结果是非决定性的。
+看起来有可能是这样：
+
+```
+I have to prepare a cappuccino!
+I ordered a cappuccino and an espresso
+Let's prepare an espresso.
+```
+
+尽管我们最初发送两条消息给 `Barista` 的邮箱，在上面的示例中，我们自己的 `println` 输出插在了处理两条消息之间。
+
+## 答复消息
+
+只是把消息发送给别人是不够的。你有时候会想要答复消息的发送者，当然，仍然按非同步的方式。
+
+为了直接让你知道如何答复发送者，我们略过一些内容直接告诉你，actor有一个能返回最后一条（也就是当前正在处理的）消息的发送者的方法：`sender`。
+
+但为什么actor能知道是谁发送的消息呢？答案就在 `!` 方法的第二个参数，一个隐含的参数列表类型：
+
+```
+def !(message: Any)(implicit sender: ActorRef = Actor.noSender): Unit
+```
+
+当 `ActorRef` 的 `!` 方法在一个行动者内被调用时，行动者会把自己的 `ActorRef` 隐式的传入此方法。
+
+我们把 `Barista` 的代码稍作更改，在打印到控制台之前立刻回复一个 `Bill` 消息给 `CoffeeRequest` 消息的发送者：
+
+```scala
+case class Bill(cents: Int)
+case object ClosingTime
+class Barista extends Actor {
+  def receive = {
+    case CappuccinoRequest =>
+      sender ! Bill(250)
+      println("I have to prepare a cappuccino!")
+    case EspressoRequest =>
+      sender ! Bill(200)
+      println("Let's prepare an espresso.")
+    case ClosingTime => context.system.shutdown()
+  }
+}
+```
+
+我们在上一段代码中加入了一条新的消息 `ClosingTime`。这个消息会使得 `Barista` 通过访问 `ActorContext` 来 关闭整个行动者系统。
+
+现在，我们介绍第二个行动者，其代表了一个客户 `customer`：
+
+```scala
+case object CaffeineWithdrawalWarning
+class Customer(caffeineSource: ActorRef) extends Actor {
+  def receive = {
+    case CaffeineWithdrawalWarning => caffeineSource ! EspressoRequest
+    case Bill(cents) => println(s"I have to pay $cents cents, or else!")
+  }
+}
+```
+这个行动者是一个咖啡成瘾者，因此他所能做的就是点咖啡。
+我们传递一个 `ActorRef` 到他的构造函数中。
+对这个顾客来说，他不知道这个 `ActorRef` 是指向了一个 `Barista` 还是什么，只知道这个行动者引用是他的咖啡因饮料的来源。
+他只关心是否能发送 `CoffeeRequest` 给这个引用。
+
+最后，为了让所有东西运转起来，我们需要创建两个行动者，并将一个 `CaffeineWithdrawalWarning` 消息发送给我们的顾客：
+
+```scala
+val barista = system.actorOf(Props[Barista], "Barista")
+val customer = system.actorOf(Props(classOf[Customer], barista), "Customer")
+customer ! CaffeineWithdrawalWarning
+barista ! ClosingTime
+```
+
+对于 `Customer`，我们使用一种不同的创建 `Prop` 的工厂方法：
+需要实例化的行动者的类型和实例化它所需要的参数一起传入到工厂方法里。
+这样我们的咖啡师的 `ActorRef` 就可以传入到顾客的构造函数里了。
+
+发送一条 `CaffeineWithdrawalWarning` 消息给顾客，会使得它发送一个 `EspressoRequest` 消息给咖啡师；
+咖啡师在接收后，再反过来返回给顾客一个 `Bill` 消息。
+输出会像是下面这样：
+
+```
+Let's prepare an espresso.
+I have to pay 200 cents, or else!
+```
+
+首先，当咖啡师处理 `EspressoRequest` 消息时，它会给顾客发送一条新消息；
+它在发送新消息给客户时，并不会阻塞 `EspressoRequest` 消息的处理（也就是往控制台打印一段字符串）。
+稍后，顾客开始处理 `Bill` 账单信息，并把它打印到控制台。
+
+## 问问题
+
+Sometimes, sending an actor a message and expecting a message in return at some later time isn’t an option – the most common place where this is the case is in components that need to interface with actors, but are not actors themselves. Living outside of the actor world, they cannot receive messages.
+
+有时候，仅仅发送消息给行动者并期待将来某个时间的回复是不够的。
+最常见的情况是，我们需要在不同的组件中与行动者互动，而不是仅仅在行动者之间互动。
+在行动者的世界外，其他组件是无法接收消息的。
+
+For situations such as these, there is Akka’s ask support, which provides some sort of bridge between actor-based and future-based concurrency. From the client perspective, it works like this:
+
+为了对应这种情况，Akka 加入了对于 `ask`（询问）的支持，它提供了一个基于actor和基于future的并行实现之间进行交互的一架桥梁。
+
+```scala
+import akka.pattern.ask
+import akka.util.Timeout
+import scala.concurrent.duration._
+implicit val timeout = Timeout(2.second)
+implicit val ec = system.dispatcher
+val f: Future[Any] = barista2 ? CappuccinoRequest
+f.onSuccess {
+  case Bill(cents) => println(s"Will pay $cents cents for a cappuccino")
+}
+```
+
+首先，你需要导入一些包以获得`ask` 语法支持，并隐性的为 `?` 方法返回的 `Future` 对象添加一个超时规则。
+并且，你需要一个 `ExecutionContext`。这里，我们简单地使用了 `ActorSystem` 的默认调度器 - 它同时还是一个方便获取的一个 `ExecutionContext`。
+
+就像你看到的，返回的`Future` 对象的内含类型是 `Any`。这应该不会让你感到惊讶，毕竟它就是一个行动者发送过来的任意一条消息而已。
+
+对于被询问的行动者来说，`ask` 行为上跟返回给一个消息发送者一条消息时一回事。
+这就是为什么我们不必更改任何代码，就可以询问一个 `Barista`。
+
+被询问的行动者返回消息给询问者时，`Promise` 对象所属的返回的 `Future` 就完成了。
+
+一般来讲，在可以使用 `告知` 的情况下就不要使用 `询问`，因为后者会消耗更多资源。
+Akka 不是跟懂礼貌的人用的！
+但是，总有情况是你必须使用询问的，在这种情况下请自由使用。
+
+## 有状态的行动者
+
+一个行动者也许会有自己的内部状态，但并不是一定需要。
+有时，应用的一大半状态是由行动者之间传递的不可变消息组成的。
+
+一个行动者在同一时刻只会处理一条信息时。由于做到了这一点，行动者理论上是可以修改内部状态的。
+这意味着行动者内部可能会有可变状态，但由于每条消息是在隔离开的情况下处理，同一个行动者的内部状态并不会因为并行问题而搞砸。
+
+为了演示，我们把没有状态的 `Barista` 改造成携带状态的行动者。简单的让它记录订单数量：
+
+```scala
+class Barista extends Actor {
+  var cappuccinoCount = 0
+  var espressoCount = 0
+  def receive = {
+    case CappuccinoRequest =>
+      sender ! Bill(250)
+      cappuccinoCount += 1
+      println(s"I have to prepare cappuccino #$cappuccinoCount")
+    case EspressoRequest =>
+      sender ! Bill(200)
+      espressoCount += 1
+      println(s"Let's prepare espresso #$espressoCount.")
+    case ClosingTime => context.system.shutdown()
+  }
+}
+```
+
+我们引入了两个变量，`cappuccinoCount` 和 `espressoCount`，分别记录每种咖啡的订单数。
+事实上这是我们在整个系列教程里第一次使用变量 `var`。
+尽管我们在函数式编程中尽量避免使用它，但这是唯一一种允许行动者携带状态的方式。
+因为每条消息是在被隔离开的情况下执行，上面的代码执行起来就像是在非行动者环境下使用 `AtomicInteger` 值。
+
+## 总结
+
+到此为止就是我们关于行动者编程模型的介绍，还有如何在Akka中使用它。
+虽然我们只是粗略的体验了Akka一些表面的内容，也略过了不少重要的概念，
+但我仍希望你已经有了足够多关于使用行动者模型的并行策略的领悟，并使你继续学习更多的内容。
+
+在接下来的文章中，我会丰富我们的小例子，给它加一些有意义的行为，并向你讲解Akka更多的理念，还有向你介绍在行动者系统是如何处理错误的。
+
+Posted by Daniel Westheide Feb 27th, 2013
