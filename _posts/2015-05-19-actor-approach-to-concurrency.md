@@ -166,7 +166,7 @@ class Barista extends Actor {
 这是因为其他的行动者分配线程进入消息处理阶段时，被阻塞的线程是不可用的。
 
 因此，设计 `Receive` 部分函数的核心原则是**尽量减少每个消息的处理时长**。
-最重要的，尽量不要再消息处理的代码里面调用任何阻塞代码。
+最重要的，尽量**不要在消息处理的代码里面调用任何阻塞代码**。
 
 当然，严格避免阻塞代码，可能会导致你有些行为无法实现 -
 比如说目前大部分的数据库驱动仍然是会阻塞的，但你想在你基于行动者模型开发的应用中访问或者保存数据。
@@ -174,7 +174,7 @@ class Barista extends Actor {
 
 ## 创建行动者
 
-定义一个actor已经在上面顺利完成，但如何在我们的应用里实际使用咖啡师 `Barista` actor呢？
+定义一个actor的任务已经在上面顺利完成，但如何在我们的应用里实际使用咖啡师 `Barista` 行动者呢？
 为了做到这点，我们必须先实例化一个新的 `Barista` 行动者。
 你也许会像往常一样，像下面一样调用它的构造函数：
 
@@ -184,7 +184,7 @@ val barista = new Barista // 会抛出异常
 
 这样做会导致运行失败！Akka 发给你了一张写着 `ActorInitializationException` 的谢谢卡。
 为了整个行动者模式运转正常，actor们必须由 `ActorSystem` 和它的组件来进行管理。
-因此，你必须请求行动者系统来初始化一个新的actor：
+因此，你必须请求行动者系统来初始化一个新的actor，而不是直接调用它的构造函数：
 
 ```scala
 import akka.actor.{ActorRef, Props}
@@ -218,11 +218,10 @@ println("I ordered a cappuccino and an espresso")
 
 调用 `!` 是一个放射后不管(fire-and-forget)的操作：你*告诉* `Barista` 你要点一杯卡布奇诺，然而并不等待咖啡师的回应，
 这就是Akka中actor之间交互的最常见模式。调用此方法实际上的行为是，你让Akka把你的消息放置于接受者的邮箱队列里。
-上面介绍过，消息发送不是阻塞行为，消息的接受者最终会在将来的某时刻处理你发送的消息。
+像我们所说的，消息发送不是阻塞行为，消息的接受者最终会在将来的某时刻处理你发送的消息。
 
-Due to the asynchronous nature, the result of the above code is not deterministic. It might look like this:
 由于消息机制的不同步的性质，上面代码的结果是非决定性的。
-看起来有可能是这样：
+比如有可能是这样：
 
 ```
 I have to prepare a cappuccino!
@@ -238,7 +237,7 @@ Let's prepare an espresso.
 
 为了直接让你知道如何答复发送者，我们略过一些内容直接告诉你，actor有一个能返回最后一条（也就是当前正在处理的）消息的发送者的方法：`sender`。
 
-但为什么actor能知道是谁发送的消息呢？答案就在 `!` 方法的第二个参数，一个隐含的参数列表类型：
+但为什么actor能知道是谁发送的消息呢？答案就在 `!` 方法的第二个参数，一个隐式参数列表类型：
 
 ```
 def !(message: Any)(implicit sender: ActorRef = Actor.noSender): Unit
@@ -277,8 +276,8 @@ class Customer(caffeineSource: ActorRef) extends Actor {
   }
 }
 ```
-这个行动者是一个咖啡成瘾者，因此他所能做的就是点咖啡。
-我们传递一个 `ActorRef` 到他的构造函数中。
+这个行动者是一个咖啡成瘾者，他唯一能做的就是点咖啡。
+我们传递一个 `ActorRef` 到他的构造函数中，
 对这个顾客来说，他不知道这个 `ActorRef` 是指向了一个 `Barista` 还是什么，只知道这个行动者引用是他的咖啡因饮料的来源。
 他只关心是否能发送 `CoffeeRequest` 给这个引用。
 
@@ -296,7 +295,7 @@ barista ! ClosingTime
 这样我们的咖啡师的 `ActorRef` 就可以传入到顾客的构造函数里了。
 
 发送一条 `CaffeineWithdrawalWarning` 消息给顾客，会使得它发送一个 `EspressoRequest` 消息给咖啡师；
-咖啡师在接收后，再反过来返回给顾客一个 `Bill` 消息。
+咖啡师在接收后，再反过来返回给顾客一个 `Bill`（账单） 消息。
 输出会像是下面这样：
 
 ```
@@ -310,15 +309,11 @@ I have to pay 200 cents, or else!
 
 ## 问问题
 
-Sometimes, sending an actor a message and expecting a message in return at some later time isn’t an option – the most common place where this is the case is in components that need to interface with actors, but are not actors themselves. Living outside of the actor world, they cannot receive messages.
-
 有时候，仅仅发送消息给行动者并期待将来某个时间的回复是不够的。
 最常见的情况是，我们需要在不同的组件中与行动者互动，而不是仅仅在行动者之间互动。
 在行动者的世界外，其他组件是无法接收消息的。
 
-For situations such as these, there is Akka’s ask support, which provides some sort of bridge between actor-based and future-based concurrency. From the client perspective, it works like this:
-
-为了对应这种情况，Akka 加入了对于 `ask`（询问）的支持，它提供了一个基于actor和基于future的并行实现之间进行交互的一架桥梁。
+为了对付这种情况，Akka 加入了对于 `ask`（询问）的支持，它提供了一个基于actor和基于future的并行实现之间进行交互的一架桥梁。
 
 ```scala
 import akka.pattern.ask
@@ -337,7 +332,7 @@ f.onSuccess {
 
 就像你看到的，返回的`Future` 对象的内含类型是 `Any`。这应该不会让你感到惊讶，毕竟它就是一个行动者发送过来的任意一条消息而已。
 
-对于被询问的行动者来说，`ask` 行为上跟返回给一个消息发送者一条消息时一回事。
+对于被询问的行动者来说，`ask` 行为上跟返回给一个消息发送者一条消息是一回事。
 这就是为什么我们不必更改任何代码，就可以询问一个 `Barista`。
 
 被询问的行动者返回消息给询问者时，`Promise` 对象所属的返回的 `Future` 就完成了。
@@ -348,10 +343,10 @@ Akka 不是跟懂礼貌的人用的！
 
 ## 有状态的行动者
 
-一个行动者也许会有自己的内部状态，但并不是一定需要。
+一个行动者也许会有自己的内部状态。
 有时，应用的一大半状态是由行动者之间传递的不可变消息组成的。
 
-一个行动者在同一时刻只会处理一条信息时。由于做到了这一点，行动者理论上是可以修改内部状态的。
+一个行动者在同一时刻只会处理一条信息。由于做到了这一点，行动者理论上是可以维持并修改内部状态的。
 这意味着行动者内部可能会有可变状态，但由于每条消息是在隔离开的情况下处理，同一个行动者的内部状态并不会因为并行问题而搞砸。
 
 为了演示，我们把没有状态的 `Barista` 改造成携带状态的行动者。简单的让它记录订单数量：
@@ -376,7 +371,7 @@ class Barista extends Actor {
 
 我们引入了两个变量，`cappuccinoCount` 和 `espressoCount`，分别记录每种咖啡的订单数。
 事实上这是我们在整个系列教程里第一次使用变量 `var`。
-尽管我们在函数式编程中尽量避免使用它，但这是唯一一种允许行动者携带状态的方式。
+尽管我们在函数式编程中尽量避免使用变量，但这是唯一一种允许行动者携带状态的方式。
 因为每条消息是在被隔离开的情况下执行，上面的代码执行起来就像是在非行动者环境下使用 `AtomicInteger` 值。
 
 ## 总结
@@ -385,6 +380,6 @@ class Barista extends Actor {
 虽然我们只是粗略的体验了Akka一些表面的内容，也略过了不少重要的概念，
 但我仍希望你已经有了足够多关于使用行动者模型的并行策略的领悟，并使你继续学习更多的内容。
 
-在接下来的文章中，我会丰富我们的小例子，给它加一些有意义的行为，并向你讲解Akka更多的理念，还有向你介绍在行动者系统是如何处理错误的。
+在接下来的文章中，我会丰富我们的例子，给它加一些有意义的行为，并向你讲解Akka更多的理念，还有向你介绍在行动者系统是如何处理错误的。
 
 Posted by Daniel Westheide Feb 27th, 2013
