@@ -2,7 +2,7 @@
 layout: post
 keywords: scala, actor, akka
 description: blog
-title: "Actor的并发策略"
+title: "译文：Actor的并发策略"
 categories: [Translation]
 tags: [Scala, Translation]
 group: archive

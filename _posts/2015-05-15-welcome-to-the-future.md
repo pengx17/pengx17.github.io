@@ -2,7 +2,7 @@
 layout: post
 keywords: blog, scala
 description: blog
-title: "欢迎来到未来"
+title: "译文：欢迎来到未来"
 categories: [Translation]
 tags: [Scala, Translation]
 group: archive
