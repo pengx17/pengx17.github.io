@@ -433,10 +433,10 @@ class Register extends Actor with ActorLogging {
 现在，卡纸状况会永远保持，直到我们重启了收银机行动者。
 但是我们也不能简单地重启他，因为这会导致营业额的重置。
 
-这时候就需要引入 **error kernel** 错误核心模式概念了。
-从基本，你应该总是效仿这种模式处理异常。
+这时候就需要引入**错误核心模式** (error kernel pattern) 概念了。
 他的含义是，当你的行动者内包含着重要的状态的时候，应把危险的任务交给子行动者去做，这样就能避免携带状态的行动者在崩溃时会导致的问题了。
 有时候，为每个类似的任务创建一个新的子行动者是有道理的，但这不是必须的。
+基本上，你应该总是效仿这种模式设计行动者系统的层级结构。
 
 这种设计模式的基本元素是保证最重要的系统状态处于行动者架构越高层越好，并且将错误尽可能的压在架构的底层。
 
@@ -498,8 +498,8 @@ class Register extends Actor with ActorLogging {
 }
 ```
 
-
-We don’t spawn a new ReceiptPrinter for each Transaction message we get. Instead, we use the default supervisor strategy to have the printer actor restart upon failure.
+我们不会在处理每个交易消息的时候都创建一个新的 `ReceiptPrinter`。
+同时，我们利用默认的监护人策略，在错误出现时重启收据打印机。
 
 One part that merits explanation is the weird way we increment our revenue: First we ask the printer for a receipt. We map the future to a tuple containing the answer as well as the requester, which is the sender of the Transaction message and pipe this to ourselves. When processing that message, we finally increment the revenue and send the receipt to the requester.
 
