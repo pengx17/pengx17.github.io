@@ -393,11 +393,11 @@ override def supervisorStrategy: SupervisorStrategy =
 
 现在，收银机在卡纸后不会被重启，它的状态也就不会被重置了。
 
-#### 错误核心
+#### 错误核心模式
 
 这是否意味着我们有了一个保持收银机状态的好的解决方案了呢？
 
-有时候，简单的恢复状态是最好的解决思路。
+有时候，简单的恢复行动者的运行状态是最好的解决思路。
 不过假设我们真的需要重启一个收银机，因为不重启也就意味着卡住的纸不会自己消失。
 我们可以通过加入一个布尔标志位来模拟一下收银机是否处于卡纸状态。
 如下，将 `Register` 收银机行动者改为：
@@ -428,16 +428,21 @@ class Register extends Actor with ActorLogging {
   }
 }
 ```
+同时移除之前加到咖啡师里的监护者策略。
 
-Also remove the supervisor strategy we added to the Barista actor.
+现在，卡纸状况会永远保持，直到我们重启了收银机行动者。
+但是我们也不能简单地重启他，因为这会导致营业额的重置。
 
-Now, the paper jam remains forever, until we have restarted the actor. Alas, we cannot do that without also losing important state regarding our revenue.
+这时候就需要引入 **error kernel** 错误核心模式概念了。
+从基本，你应该总是效仿这种模式处理异常。
+他的含义是，当你的行动者内包含着重要的状态的时候，应把危险的任务交给子行动者去做，这样就能避免携带状态的行动者在崩溃时会导致的问题了。
+有时候，为每个类似的任务创建一个新的子行动者是有道理的，但这不是必须的。
 
-This is where the error kernel pattern comes in. Basically, it is just a simple guideline you should always try to follow, stating that if an actor carries important internal state, then it should delegate dangerous tasks to child actors, so as to prevent the state-carrying actor from crashing. Sometimes, it may make sense to spawn a new child actor for each such task, but that’s not a necessity.
+这种设计模式的基本元素是保证最重要的系统状态处于行动者架构越高层越好，并且将错误尽可能的压在架构的底层。
 
-The essence of the pattern is to keep important state as far at the top of the actor hierarchy as possible, while pushing error-prone tasks as far to the bottom of the hierarchy as possible.
-
-Let’s apply this pattern to our Register actor. We will keep the revenue state in the Register actor, but move the error-prone behaviour of printing the receipt to a new child actor, which we appropriately enough call ReceiptPrinter. Here is the latter:
+让我们为我们的收银机行动者实现这种模式。
+我们依然让收银机保持营业额状态，但将容易出错的打印收据的行为放入一个新的子行动者 `ReceiptPrinter` 内。
+`ReceiptPrinter` 的定义如下：
 
 ```scala
 object ReceiptPrinter {
@@ -461,10 +466,11 @@ class ReceiptPrinter extends Actor with ActorLogging {
 }
 ```
 
-Again, we simulate the paper jam with a boolean flag and throw an exception each time someone asks us to print a receipt while in a paper jam. Other than the new message type, PrintJob, this is really just extracted from the Register type.
+再一次的，我们通过一个布尔标志位来模拟卡纸异常，并在卡纸的状态下打印收据时抛出一个异常。
+抽出了收银机的打印逻辑后，我们在这里定义了一个新的消息类型 `PrintJob`。
 
-This is a good thing, not only because it moves away this dangerous operation from the stateful Register actor, but it also makes our code simpler and consequently easier to reason about: The ReceiptPrinter actor is responsible for exactly one thing, and the Register actor has become simpler, too, now being only responsible for managing the revenue, delegating the remaining functionality to a child actor:
-
+这是一种比较好的处理方式，不仅是因为把危险的操作从持有重要状态的收银机行动者中抽出来，并且他让我们的代码也变得更清晰和阐述：
+`ReceiptPrinter` 只负责打印收据，`Register` 也变得更清晰了 - 它只负责管理营业额，并把剩下的功能委托给子行动者：
 
 ```scala
 class Register extends Actor with ActorLogging {
