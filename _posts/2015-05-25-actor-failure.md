@@ -168,14 +168,16 @@ class Barista extends Actor {
 首先，我们定义了 `Barista` 行动者所需要处理的消息类型。
 一个意式咖啡杯 `EspressoCup` 有一个通过 `sealed trait` 实现的不可变的状态。
 
-The more interesting part is to be found in the implementation of the Barista class. The dispatcher, ask, and pipe imports as well as the implicit timeout are required because we make use of Akka’s ask syntax and futures in our Receive partial function: When we receive an EspressoRequest, we ask the Register actor for a Receipt for our Transaction. This is then combined with a filled espresso cup and piped to the sender, which will thus receive a tuple of type (EspressoCup, Receipt). This kind of delegating subtasks to child actors and then aggregating or amending their work is typical for actor-based applications.
+更令人感兴趣的部分是在 `Barista` 类中。
+为了使用Akka 的**询问**语句而且让他返回`future`变量，我们需要导入`dispatcher`、`ask` 和 `pipe` ，并定义一个 隐式的 `timeout` 值：
+当咖啡师接收到一条 `EspressoRequest` 浓缩咖啡订单后，我们以询问的方式发送一个 `Transaction` 交易消息给 `Register` 收银机，并等待其返回一个 `Receipt` 收据消息。
+获取得的收据随后会和一杯倒满了咖啡的的咖啡杯一起以一个元组 `(EspressoCup, Receipt)` 的形式输送给 `EspressoRequest` 的发送者（也就是顾客）。
+这种委托子任务给子行动者、并把他们的任务整合或修整的策略，正是典型的基于行动者的应用的处理方式。
 
-更令人感兴趣的部分是在 `Barista` 类中。调度器，
+并且，请注意我们如何通过调用 `ActorContext` 而不是用 `ActorSystem` 的 `actorOf` 方法创建子行动者。
+通过这样做，我们创建的行动者成为了调用者的子行动者，避免其成为守卫行动者子女的顶级的行动者。
 
-
-Also, note how we create our child actor by calling actorOf on our ActorContext instead of the ActorSystem. By doing so, the actor we create becomes a child actor of the one who called this method, instead of a top-level actor whose parent is the guardian actor.
-
-Finally, here is our Customer actor, which, like the Barista actor, will sit at the top level, just below the guardian actor:
+最后，下面是 `Customer` 行动者的定义。像是 `Barista` ，他也是顶级的、仅处于守卫行动者之下的行动者：
 
 ```scala
 object Customer {
@@ -193,9 +195,9 @@ class Customer(coffeeSource: ActorRef) extends Actor with ActorLogging {
 }
 ```
 
-It is not terribly interesting for our tutorial, which focuses more on the Barista actor hierarchy. What’s new is the use of the ActorLogging trait, which allows us to write to the log instead of printing to the console.
+上面的代码中，我们首次使用了 `ActorLogging`，它允许我们把信息打印到日志类中，而不是到控制台。
 
-Now, if we create our actor system and populate it with a Barista and two Customer actors, we can happily feed our two under-caffeinated addicts with a shot of black gold:
+现在，如果我们创建一个行动者系统，并在其中填入一个咖啡师和两个顾客，我们就可以开心的从这两个需要解决咖啡瘾的顾客中榨取黑金了：
 
 ```scala
 import Customer._
@@ -207,24 +209,23 @@ customerJohnny ! CaffeineWithdrawalWarning
 customerAlina ! CaffeineWithdrawalWarning
 ```
 
-If you try this out, you should see two log messages from happy customers.
-
+如果你试着运行上面的代码，你可以看到这由满意的顾客们产生的两条日志记录。
 
 ----
 
+## 崩溃还是不崩溃？
 
-## To crash or not to crash?
+当然，这篇文章的主题不是关于满意的顾客，而是出现糟糕的事情发生的时我们应如何应对。
 
-Of course, what we are really interested in, at least in this article, is not happy customers, but the question of what happens if things go wrong.
-
-Our register is a fragile device – its printing functionality is not as reliable as it should be. Every so often, a paper jam causes it to fail. Let’s add a PaperJamException type to the Register companion object:
-
+假设我们的收银机是个脆弱的设备 - 它的打印功能不是很靠得住。
+时常的，小票纸会卡住机器，导致打印失败。
+我们在收银机的伴生对象里加入一个 `PaperJamException` 卡纸异常：
 
 ```scala
 class PaperJamException(msg: String) extends Exception(msg)
 ```
 
-Then, let’s change the createReceipt method in our Register actor accordingly:
+然后，我们相应的改变 `createReceipt` 生成收据方法：
 
 ```scala
 def createReceipt(price: Int): Receipt = {
@@ -235,27 +236,30 @@ def createReceipt(price: Int): Receipt = {
 }
 ```
 
-Now, when processing a Transaction message, our Register actor will throw a PaperJamException in about half of the cases.
+现在，当处理 `Transaction` 交易消息时，我们的收银机会以大概50%的几率抛出一个 `PaperJamException` 异常。
 
-What effect does this have on our actor system, or on our whole application? Luckily, Akka is very robust and not affected by exceptions in our code at all. What happens, though, is that the parent of the misbehaving child is notified – remember that parents are watching over their children, and this is the situation where they have to decide what to do.
+这会怎样影响我们的行动者系统乃至整个应用呢？
+幸运的是，Akka是个很强健的系统，而且不会受我们代码中的异常影响。
+当异常出现时，产生异常的子行动者的父行动者会接到通知 - 还记得我们之前提到过，父行动者会监视它的子行动者们吗？
+这个时候，就是由父行动者决定应采取什么样的措施来处理子行动者的异常了。
 
+#### 监护人的异常处理策略
 
-#### Supervisor strategies
+当接收到子行动者产生了异常的通知时，父行动者不是在 `onReceive` 方法中处理子行动者的失败行为的，因为这会混淆父行动者自己的正常处理逻辑。
+就是说，处理自身的正常消息的逻辑和处理子行动者失败行为的逻辑是完全分开的。
 
-The whole act of being notified about exceptions in child actors, however, is not handled by the parent actor’s Receive partial function, as that would confound the parent actor’s own behaviour with the logic for dealing with failure in its children. Instead, the two responsibilities are clearly separated.
+每一个行动者都可以定义一个他自己的 **监护人策略**。它向Akka声明了当子行动者出现某种异常出现时，应该做如何处理。
 
-Each actor defines its own supervisor strategy, which tells Akka how to deal with certain types of errors occurring in your children.
+基本上来说，我们会使用两种监护人策略：`OneForOneStrategy` 和 `AllForOneStrategy`。
+选择前者，因为着处理一个子行动者时只会影响到这一个子行动者，反之就会影响所有的子行动者。
+使用哪种策略应由你的应用的实际使用情况决定。
 
-There are basically two different types of supervisor strategy, the OneForOneStrategy and the AllForOneStrategy. Choosing the former means that the way you want to deal with an error in one of your children will only affect the child actor from which the error originated, whereas the latter will affect all of your child actors. Which of those strategies is best depends a lot on your individual application.
+在选择使用哪种 `SupervisorStrategy` 策略以外，你还需要给你的行动者指明一个 `Decider` (`PartialFunction[Throwable, Directive]` 的别名)。
+定义它你可以为每种异常决定一个或所有的子行动者出现异常时需要做一些什么。
 
-Regardless of which type of SupervisorStrategy you choose for your actor, you will have to specify a Decider, which is a PartialFunction[Throwable, Directive] – this allows you to match against certain subtypes of Throwable and decide for each of them what’s supposed to happen to your problematic child actor (or all your child actors, if you chose the all-for-one strategy).
+#### 基本指令
 
-
-
-#### Directives
-
-Here is a list of the available directives:
-
+下面是可供选择的基本指令：
 
 ```scala
 sealed trait Directive
@@ -265,54 +269,64 @@ case object Stop extends Directive
 case object Escalate extends Directive
 ```
 
+- **Resume**：如果你选择了继续, 也许就意味着你认为你的子行动者过于鸡婆，觉得她们抛出的异常可以忽略。
+子行动者们这时就会的继续处理异常，就像是什么也没发生过一样。
 
-- `Resume`: If you choose to Resume, this probably means that you think of your child actor as a little bit of a drama queen. You decide that the exception was not so exceptional after all – the child actor or actors will simply resume processing messages as if nothing extraordinary had happened.
+- **Restart**：重启指令会使得Akka为你创建一个或者多个新的子行动者。
+这样做的一个原因之一是你假设了你的子行动者们会在抛出异常时，内部的状态就已经不稳定了，而且不能够继续处理更多的信息。
+通过重启行动者，你希望会使得行动者重新进入一个干净的运行状态。
 
-- `Restart`: The Restart directive causes Akka to create a new instance of your child actor or actors. The reasoning behind this is that you assume that the internal state of the child/children is corrupted in some way so that it can no longer process any further messages. By restarting the actor, you hope to put it into a clean state again.
+- **Stop**：直接杀死行动者，他们就不能被重启了。
 
-- `Stop`: You effectively kill the actor. It will not be restarted.
+- **Escalate**: 如果你选择了升级（指把错误递交给父行动者去处理），也许这一意味着这个行动者不知道如何去处理子行动者的异常。
+通过把异常传给上级，你把处理异常的决定委托给了他的上一级的父行动者，并祈祷他比你更擅长处理它。
+不过这样做后，行动者自己也许会被他的上级重启，因为行动者们只知道如何重启他的子行动者，而不能直接重启隔了两代的行动者。
 
-- `Escalate`: If you choose to Escalate, you probably don’t know how to deal with the failure at hand. You delegate the decision about what to do to your own parent actor, hoping they are wiser than you. If an actor escalates, they may very well be restarted themselves by their parent, as the parent will only decide about its own child actors.
+#### 默认策略
 
-
-
-#### The default strategy
-
-You don’t have to specify your own supervisor strategy in each and every actor. In fact, we haven’t done that so far. This means that the default supervisor strategy will take effect. It looks like this:
+你不必在每个行动者里指明一个监护人策略。
+实际上，我们到目前为止都没主动的这样做过。
+这意味着默认的监护人策略在起作用，像是这样：
 
 ```scala
 final val defaultStrategy: SupervisorStrategy = {
   def defaultDecider: Decider = {
-    case _: ActorInitializationException ⇒ Stop
-    case _: ActorKilledException         ⇒ Stop
-    case _: Exception                    ⇒ Restart
+    case _: ActorInitializationException => Stop
+    case _: ActorKilledException         => Stop
+    case _: Exception                    => Restart
   }
   OneForOneStrategy()(defaultDecider)
 }
 ```
 
-This means that for exceptions other than ActorInitializationException or ActorKilledException, the respective child actor in which the exception was thrown will be restarted.
+这意味着，除了 `ActorInitializationException` 和 `ActorKilledException`，抛出其他异常的子行动者会被自动重启。
 
-Hence, when a PaperJamException occurs in our Register actor, the supervisor strategy of the parent actor (the barista) will cause the Register to be restarted, because we haven’t overridden the default strategy.
+因此，当 `PaperJamException` 异常发生时，由于我们没有指定监护人策略，根据收银机的父行动者（也就是咖啡师）的默认策略，收银机会自动被重启。
 
-If you try this out, you will likely see an exception stacktrace in the log, but nothing about the Register actor being restarted.
+如果你试过运行代码，你会在日志中发现一个异常的对战追踪信息，但收银机被重启的消息并没有出现在日志中。
 
-Let’s verify that this is really happening. To do so, however, you will need to learn about the actor lifecycle.
+为了验证一下到底发生了什么，我们先来学习一下行动者的生命周期。
 
+#### 行动者的生命周期
 
-#### The actor lifecycle
+为了理解监护人策略的每种指令，我们需要了解一点行动者生命周期的一些知识。
+基本上，可以被分解为如下：
+当行动者通过 `actorOf` 方法创建后，行动者开始运作；
+他可以在错误出现时被重启任意次；
+最后当行动者被停止是，也就意味着他迎来了它的死亡。
 
-To understand what the directives of a supervisor strategy actually do, it’s crucial to know a little bit about an actor’s lifecycle. Basically, it boils down to this: when created via actorOf, an actor is started. It can then be restarted an arbitrary number of times, in case there is a problem with it. Finally, an actor can be stopped, ultimately leading to its death.
+一个行动者生命周期有多个方法可以被重载，并且了解他们的默认实现也很重要。
+让我们简略的过一遍这几个方法：
 
-There are numerous lifecycle hook methods that an actor implementation can override. It’s also important to know their default implementations. Let’s go through them briefly:
+- **preStart**: 预开始阶段，会在行动者 `start` 即将启动前被调用，允许你做一些初始化逻辑。默认实现为空。
+- **postStop**: 后停止阶段，在 `stop` 停止方法被调用后被调用，允许你做一些资源清理工作。默认实现为空。
+- **preRestart**: 预重启阶段，会在一个崩溃的行动者 `restart` 即将重启前被调用。
+默认实现中，此方法会停掉所有的他的子行动者，并调用 `postStop` 方法以清理资源。
+- **postRestart**: 后重启阶段，会在行动者刚刚重启完成后被调用。默认实现为调用 `preStart` 方法。
 
-- **preStart**: Called when an actor is started, allowing you to do some initialization logic. The default implementation is empty.
-- postStop: Empty by default, allowing you to clean up resources. Called after stop has been called for the actor.
-- preRestart: Called right before a crashed actor is restarted. By default, it stops all children of that actor and then calls postStop to allow cleaning up of resources.
-- postRestart: Called immediately after an actor has been restarted. Simply calls preStart by default.
+通过在 `postRestart` 方法中加入一些日志输出信息，让我们看一下我们的收银机是否真的在出现错误时被重启了。
+给 `Register` 加入对于 `ActorLogging` 的继承，并加上下面的方法：
 
-
-Let’s see if our Register gets indeed restarted upon failure by simply adding some log output to its postRestart method. Make the Register type extend the ActorLogging trait and add the following method to it:
 
 ```scala
 override def postRestart(reason: Throwable) {
@@ -320,14 +334,14 @@ override def postRestart(reason: Throwable) {
   log.info(s"Restarted because of ${reason.getMessage}")
 }
 ```
+现在，如果你给两个顾客行动者发送一堆 `CaffeineWithdrawalWarning` 消息，你会在日志中看到几条可以确定收银机有时被重启了的信息。
 
-Now, if you send the two Customer actors a bunch of CaffeineWithdrawalWarning messages, you should see the one or the other of those log outputs, confirming that our Register actor has been restarted.
+#### 行动者的死亡
 
-
-#### Death of an actor
-
-Often, it doesn’t make sense to restart an actor again and again – think of an actor that talks to some other service over the network, and that service has been unreachable for a while. In such cases, it is a very good idea to tell Akka how often to restart an actor within a certain period of time. If that limit is exceeded, the actor is instead stopped and hence dies. Such a limit can be configured in the constructor of the supervisor strategy:
-
+很多时候，不停地重启同一个行动者在道理上说不通。
+比方说，一个行动者需要与网络上的服务进行交互，但服务器有时会在很长时间内没有作出应答。
+在这种情况下，让Akka在一定时间内重启行动者是个好主意；超时后，行动者就会被停掉，也就让他赢来了死亡。
+这个时间限制可以通过监护人策略的构造函数配置：
 
 ```scala
 import scala.concurrent.duration._
@@ -338,10 +352,10 @@ OneForOneStrategy(10, 2.minutes) {
 }
 ```
 
+#### 可自愈的系统？
 
-#### The self-healing system?
-
-So, is our system running smoothly, healing itself whenever this damn paper jam occurs? Let’s change our log output:
+我们的系统是否能平稳的运行，并在卡纸的时候自我修复么？
+让我们修改一下后重启阶段的日志输出：
 
 ```scala
 override def postRestart(reason: Throwable) {
@@ -350,7 +364,7 @@ override def postRestart(reason: Throwable) {
 }
 ```
 
-And while we are at it, let’s also add some more logging to our Receive partial function, making it look like this:
+再加入一点输出信息给 `receive` 函数，像是这样：
 
 ```scala
 def receive = {
@@ -362,9 +376,12 @@ def receive = {
 }
 ```
 
-Ouch! Something is clearly not as it should be. In the log, you will see the revenue increasing, but as soon as there is a paper jam and the Register actor restarts, it is reset to 0. This is because restarting indeed means that the old instance is discarded and a new one created as per the Props we initially passed to actorOf.
+啊哦！好像有些东西没搞对。
+在日志中，你会看到收入额会逐步提高，但只要收银机卡纸重启后，销售额就被重置为0.
+这是因为重启一个行动者意味着之前的实例就被完全抛弃，以一个全新的通过 `actorOf()` 调用生成的行动者替代。
 
-Of course, we could change our supervisor strategy, so that it resumes in case of a PaperJamException. We would have to add this to the Barista actor:
+当然，我们可以改变监护人策略，让他在 `PaperJamException` 异常抛出时直接继续运行。
+我们可以把下面的代码加进咖啡师的定义内：
 
 ```scala
 val decider: PartialFunction[Throwable, Directive] = {
@@ -374,15 +391,16 @@ override def supervisorStrategy: SupervisorStrategy =
   OneForOneStrategy()(decider.orElse(SupervisorStrategy.defaultStrategy.decider))
 ```
 
-Now, the actor is not restarted upon a PaperJamException, so its state is not reset.
+现在，收银机在卡纸后不会被重启，它的状态也就不会被重置了。
 
+#### 错误核心
 
-#### Error kernel
+这是否意味着我们有了一个保持收银机状态的好的解决方案了呢？
 
-So we just found a nice solution to preserve the state of our Register actor, right?
-
-Well, sometimes, simply resuming might be the best thing to do. But let’s assume that we really have to restart it, because otherwise the paper jam will not disappear. We can simulate this by maintaining a boolean flag that says if we are in a paper jam situation or not. Let’s change our Register like so:
-
+有时候，简单的恢复状态是最好的解决思路。
+不过假设我们真的需要重启一个收银机，因为不重启也就意味着卡住的纸不会自己消失。
+我们可以通过加入一个布尔标志位来模拟一下收银机是否处于卡纸状态。
+如下，将 `Register` 收银机行动者改为：
 
 ```scala
 class Register extends Actor with ActorLogging {
