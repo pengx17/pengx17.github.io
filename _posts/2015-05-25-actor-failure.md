@@ -165,9 +165,13 @@ class Barista extends Actor {
 }
 ```
 
-First off, we define the message types that our Barista actor is able to deal with. An EspressoCup can have one out of a fixed set of states, which we ensure by using a sealed trait.
+首先，我们定义了 `Barista` 行动者所需要处理的消息类型。
+一个意式咖啡杯 `EspressoCup` 有一个通过 `sealed trait` 实现的不可变的状态。
 
 The more interesting part is to be found in the implementation of the Barista class. The dispatcher, ask, and pipe imports as well as the implicit timeout are required because we make use of Akka’s ask syntax and futures in our Receive partial function: When we receive an EspressoRequest, we ask the Register actor for a Receipt for our Transaction. This is then combined with a filled espresso cup and piped to the sender, which will thus receive a tuple of type (EspressoCup, Receipt). This kind of delegating subtasks to child actors and then aggregating or amending their work is typical for actor-based applications.
+
+更令人感兴趣的部分是在 `Barista` 类中。调度器，
+
 
 Also, note how we create our child actor by calling actorOf on our ActorContext instead of the ActorSystem. By doing so, the actor we create becomes a child actor of the one who called this method, instead of a top-level actor whose parent is the guardian actor.
 
