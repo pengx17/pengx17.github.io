@@ -213,9 +213,9 @@ customerAlina ! CaffeineWithdrawalWarning
 
 ----
 
-## 崩溃还是不崩溃？
+## To crash or not to crash?
 
-当然，这篇文章的主题不是关于满意的顾客，而是出现糟糕的事情发生的时我们应如何应对。
+当然，这篇文章的主题不是关于满意的顾客，而是糟糕的事情发生的时我们应如何应对。
 
 假设我们的收银机是个脆弱的设备 - 它的打印功能不是很靠得住。
 时常的，小票纸会卡住机器，导致打印失败。
@@ -236,7 +236,7 @@ def createReceipt(price: Int): Receipt = {
 }
 ```
 
-现在，当处理 `Transaction` 交易消息时，我们的收银机会以大概50%的几率抛出一个 `PaperJamException` 异常。
+现在，当处理 `Transaction` 交易消息时，收银机会以50%的几率抛出一个 `PaperJamException` 异常。
 
 这会怎样影响我们的行动者系统乃至整个应用呢？
 幸运的是，Akka是个很强健的系统，而且不会受我们代码中的异常影响。
@@ -248,11 +248,11 @@ def createReceipt(price: Int): Receipt = {
 当接收到子行动者产生了异常的通知时，父行动者不是在 `onReceive` 方法中处理子行动者的失败行为的，因为这会混淆父行动者自己的正常处理逻辑。
 就是说，处理自身的正常消息的逻辑和处理子行动者失败行为的逻辑是完全分开的。
 
-每一个行动者都可以定义一个他自己的 **监护人策略**。它向Akka声明了当子行动者出现某种异常出现时，应该做如何处理。
+每一个行动者都可以定义一个他自己的 **监护人策略**。它向Akka声明了当子行动者出现某种异常出现时，父行动者应该如何处理。
 
 基本上来说，我们会使用两种监护人策略：`OneForOneStrategy` 和 `AllForOneStrategy`。
-选择前者，因为着处理一个子行动者时只会影响到这一个子行动者，反之就会影响所有的子行动者。
-使用哪种策略应由你的应用的实际使用情况决定。
+选择前者，意味着处理一个子行动者时只会影响到这一个子行动者，反之就会影响所有的子行动者。
+使用哪种策略应由你的实际使用情况决定。
 
 在选择使用哪种 `SupervisorStrategy` 策略以外，你还需要给你的行动者指明一个 `Decider` (`PartialFunction[Throwable, Directive]` 的别名)。
 定义它你可以为每种异常决定一个或所有的子行动者出现异常时需要做一些什么。
@@ -467,7 +467,7 @@ class ReceiptPrinter extends Actor with ActorLogging {
 ```
 
 再一次的，我们通过一个布尔标志位来模拟卡纸异常，并在卡纸的状态下打印收据时抛出一个异常。
-抽出了收银机的打印逻辑后，我们在这里定义了一个新的消息类型 `PrintJob`。
+抽出了收银机的打印逻辑后，我们在这里定义了一个新的消息类型 `PrintJob` 并处理这条消息。
 
 这是一种比较好的处理方式，不仅是因为把危险的操作从持有重要状态的收银机行动者中抽出来，并且他让我们的代码也变得更清晰和阐述：
 `ReceiptPrinter` 只负责打印收据，`Register` 也变得更清晰了 - 它只负责管理营业额，并把剩下的功能委托给子行动者：
@@ -501,28 +501,37 @@ class Register extends Actor with ActorLogging {
 我们不会在处理每个交易消息的时候都创建一个新的 `ReceiptPrinter`。
 同时，我们利用默认的监护人策略，在错误出现时重启收据打印机。
 
-One part that merits explanation is the weird way we increment our revenue: First we ask the printer for a receipt. We map the future to a tuple containing the answer as well as the requester, which is the sender of the Transaction message and pipe this to ourselves. When processing that message, we finally increment the revenue and send the receipt to the requester.
+上面的代码中，增加营业额的逻辑部分值得讨论一下：
+首先，询问 (`ask`) 打印机以获取一张收据，然后映射询问函数的 `future` 的返回值，使其变为一个含有询问结果和请求者引用（也就是发送给收银机 `Transaction` 交易消息的行动者）的一个元组，随后将其传送给自己。
+当这个元组消息被处理时，我们才增加销售额，最终将收据发送回给交易的请求者。
 
-The reason for that indirection is that we want to make sure that we only increment our revenue if the receipt was successfully printed. Since it is vital to never ever modify the internal state of an actor inside of a future, we have to use this level of indirection. It helps us make sure that we only change the revenue within the confines of our actor, and not on some other thread.
+这样迂回的处理销售额的方式，是因为我们需要确保在收据成功打印后才增加销售额。
+其遵循了一个重要原则：**从来不要在 `Future` 中修改一个行动者的内部状态**。
+它使得我们能够确保营业额是在行动者的范围内增加的，而不是在其他的线程中被处理。
 
-Assigning the sender to a val is necessary for similar reasons: When mapping a future, we are no longer in the context of our actor either – since sender is a method, it would now likely return the reference to some other actor that has sent us a message, not the one we intended.
+将发送者赋值给一个 `val` 定量是必要的，其原因类似：
+映射一个未来对象时所在的上下文不是行动者的上下文。因为 `sender` 是一个方法，在映射函数内调用它时，返回值很可能会是发送什么别的消息的行动者，而不是我们想用的那个。
 
-Now, our Register actor is safe from constantly being restarted, yay!
+现在，我们的 `Register` 收银机可以安全自由的重启啦，✌️！
 
-Of course, the very idea of having the printing of the receipt and the management of the revenue in one place is questionable. Having them together came in handy for demonstrating the error kernel pattern. Yet, it would certainly be a lot better to seperate the receipt printing from the revenue management altogether, as these are two concerns that don’t really belong together.
+当然，将打印收据和管理营业额业务放在一起不是什么好主意。
+我们为此是为了展示错误核心模式的一个用例。
+不过，实际中将这两个业务分开处理要好的多，因为它们在概念上不是在一起的。
 
+#### 超时设定
 
-#### Timeouts
+我们另一个需要改进的地方是对于超时的处理。
+目前，当 `ReceiptPrinter` 中出现异常时，由于使用了 `ask`，这会引发 `AskTimeoutException` 询问超时异常，返回给 `Barista` 咖啡师一个没有成功完成的 `Future` 对象。
 
-Another thing that we may want to improve upon is the handling of timeouts. Currently, when an exception occurs in the ReceiptPrinter, this leads to an AskTimeoutException, which, since we are using the ask syntax, comes back to the Barista actor in an unsuccessfully completed Future.
+由于 `Barista` 简单的映射了未来对象成功时的结果，然后把处理后的结果传给顾客，这样就使得顾客对象接收到一个含有 `AskTimeoutException` 异常的 `Failure` 对象。
 
-Since the Barista actor simply maps over that future (which is success-biased) and then pipes the transformed result to the customer, the customer will also receive a Failure containing an AskTimeoutException.
+但是，`Customer` 并没有询问过任何事物，自然他也没期待接收到这样的消息。事实上，他目前也无法处理这样的消息。
+我们以友好的方式，在出现超时异常时，发送给顾客们一条 `ComebackLater` 稍后再来消息。
+这是一条顾客可以明白的消息，它会使得顾客会在之后的某个时间再来购买咖啡。
+这样优化了之前的实现，因为我们可以使得顾客知道是否能取得想要的咖啡。
 
-The Customer didn’t ask for anything, though, so it is certainly not expecting such a message, and in fact, it currently doesn’t handle these messages. Let’s be friendly and send customers a ComebackLater message – this is a message they already understand, and it makes them try to get an espresso at a later point. This is clearly better, as the current solution means they will never know that they will not get their espresso.
-
-To achieve this, let’s recover from AskTimeoutException failures by mapping them to ComebackLater messages. The Receive partial function of our Barista actor thus now looks like this:
-
-
+为了实现它，我们可以调用含有 `AskTimeoutException` 超时异常的 `Failure` 对象的 `recover` 方法，将它映射成一个 `ComebackLater` 消息。
+`Barista` 咖啡师的接受部分函数修改如下：
 
 ```scala
 def receive = {
@@ -534,20 +543,24 @@ def receive = {
   case ClosingTime => context.system.shutdown()
 }
 ```
+现在，顾客行动者知道如果咖啡没有购买成功时，他们可以重复尝试多次，直到成功购买到咖啡来满足咖啡瘾。
 
+#### 死亡监视
 
-Now, the Customer actors know they can try their luck later, and after trying often enough, they should finally get their eagerly anticipated espresso.
+为保证系统的容错性，除子行动者之外，另一个重要原则是行动者需要监视着自己重要的依赖对象。
 
-#### Death Watch
+有时，你拥有一些需要依赖于其他的非自己子行动者的行动者。
+这意味着我们不能使用监护人策略来处理依赖关系。
+不过，我们依然需要有另一种方式监视其他行动者的状态，并在他们出问题时得到通知。
 
-Another principle that is important in order to keep your system fault-tolerant is to keep a watch on important dependencies – dependencies as opposed to children.
+思考一下一个需要访问数据库的行动者。
+你会有其他的行动者需要这个行动者处于可用的健康状态，并在它不可用时接收到通知。
+也许你想在数据库访问行动者故障时时，将系统转入维护模式；或是简单的将死掉的行动者用某种备份行动者替换掉是更好地解决方案。
 
-Sometimes, you have actors that depend on other actors without the latter being their children. This means that they can’t be their supervisors. Yet, it is important to keep a watch on their state and be notified if bad things happen.
-
-Think, for instance, of an actor that is responsible for database access. You will want actors that require this actor to be alive and healthy to know when that is no longer the case. Maybe you want to switch your system to a maintenance mode in such a situation. For other use cases, simply using some kind of backup actor as a replacement for the dead actor may be a viable solution.
-
-In any case, you will need to place a watch on an actor you depend on in order to get the sad news of its passing away. This is done by calling the watch method defined on ActorContext. To illustrate, let’s have our Customer actors watch the Barista – they are highly addicted to caffeine, so it’s fair to say they depend on the barista:
-
+不管在哪种情况下，你都需要以某种方式监视行动者逝去的悲伤消息。
+这可以通过调用定义在 `ActorContext` 上的 `watch` 方法实现。
+为了展示，我们将 `Customer` 顾客改造一下，使其监视 `Barista` 咖啡师。
+因为顾客们对咖啡因极为上瘾，因此让他们依赖于咖啡师是合情合理的：
 
 ```scala
 class Customer(coffeeSource: ActorRef) extends Actor with ActorLogging {
@@ -570,22 +583,22 @@ class Customer(coffeeSource: ActorRef) extends Actor with ActorLogging {
 }
 ```
 
+我们在顾客的构造函数里使其开始监视 `coffeeSource`，并加入对于 `Terminated` 消息的处理 -
+这是种我们可以从Akka中所监视的对象死亡时可以接收到的消息。
 
+现在，如果我们发送一个 `ClosingTime` 打烊时间消息给咖啡师，咖啡师将告诉行动者上下文结束自己的生命，这时顾客就会接受到咖啡师死亡的消息了。
+请读者自己尝试一下，你就会在控制台中看到顾客关于"重新找一家咖啡店"的日志信息。
 
-We start watching our coffeeSource in our constructor, and we added a new case for messages of type Terminated – this is the kind of message we will receive from Akka if an actor we watch dies.
-
-Now, if we send a ClosingTime to the message and the Barista tells its context to stop itself, the Customer actors will be notified. Give it a try, and you should see their output in the log.
-
-Instead of simply logging that we are not amused, this could just as well initiate some failover logic, for instance.
+你也可以以此为基础，加入更好的失败处理逻辑。
 
 -----
 
+## 总结
 
-## Summary
+这是系列的第二篇关于行动者和Akka的文章。
+你已经了解了一个行动者系统内几个重要的组成部分，还有如果利用Akka提供的工具和方法使得你的系统可以变得更有容错性。
 
-In this part of the series, which is the second one dealing with actors and Akka, you got to know some of the important components of an actor system, all while learning how to put the tools provided by Akka and the ideas behind it to use in order to make your system more fault-tolerant.
+不过还有还有很多你需要了解的Akka和行动者模型的知识，但我们把它留给你，因为这超出了此系列的范畴。
+在下一部分，此系列将进入总结部分。我会为你提供一些Scala语言还有Akka工具包的学习资源。
 
-While there is still a lot more to learn about the actor model and Akka, we shall leave it at that for now, as this would go beyond the scope of this series. In the next part, which shall bring this series to a conclusion, I will point you to a bunch of Scala resources you may want to peruse to continue your journey through Scala land, and if actors and Akka got you excited, there will be something in there for you, too.
-
-
-To be continued...
+Daniel Westheide · Mar 20th, 2013 
