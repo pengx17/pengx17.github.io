@@ -398,6 +398,12 @@ table#about-me a{
   color: #1077BC;
 }
 
+table#about-me .icon-container {
+  width: 24px;
+  display: block;
+  float: left;
+}
+
 /* 目录的tab样式，继承自bootstrap 2.x版本 */
 .tabbable:before, .tabbable:after {
   display: table;
