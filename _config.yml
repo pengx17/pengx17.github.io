@@ -2,9 +2,14 @@ permalink: /:categories/:year/:month/:day/:title
 
 exclude: [".rvmrc", ".rbenv-version", "README.md", "Rakefile", "changelog.md"]
 highlighter: true
+incremental: true
 paginate: 4
+
+pygments: true
 # enable github favored Markdown
 markdown: redcarpet
+redcarpet:
+  input: GFM
 
 gems:
   - jekyll-gist
@@ -13,7 +18,7 @@ gems:
 excerpt_separator: <!-- more -->
 
 title : 进击的xp!
-tagline: OpenCV OpenCL
+tagline: Programmer, blog, pengx17
 author :
   name : pengx17
   email : pengxiao@outlook.com
