@@ -183,6 +183,11 @@ Promise 的时候与 `await` 组合。
 
 ```javascript
 function testExceptions() {
+  // 在 Node.js 中处理未捕捉的 Promise 异常
+  process.on('unhandledRejection', (reason, p) => {
+    console.log("Unhandled Rejection - " + reason + " reason");
+  });
+
   async function foo() {
     throw 'some error';
   }
@@ -191,7 +196,7 @@ function testExceptions() {
   try {
     foo();
   } catch(e) {
-    console.log("normal try/catch" + e);
+    console.log("normal try/catch - " + e);
   }
 
   // 异常未被捕获
@@ -199,7 +204,7 @@ function testExceptions() {
     try {
       foo();
     } catch(e) {
-      console.log("async try/catch without await" + e);
+      console.log("async try/catch without await - " + e);
     }
   })();
 
@@ -208,14 +213,20 @@ function testExceptions() {
     try {
       await foo();
     } catch(e) {
-      console.log("async try/catch with await" + e);
+      console.log("async try/catch with await - " + e);
     }
   })();
 }
+// 执行结果：
+// async try/catch with await - some error
+// Unhandled Rejection - some error reason
+// Unhandled Rejection - some error reason
 ```
 
 谨记一点：`async` 函数中的 `Promise` 如果不是跟 `await` 组合，那么他的返回值还是一个 `Promise`。
-开发过程中请谨慎对待"游离状态"的 `Promise`。因为这种用法会失去对于 `Promise` 执行状态的追踪。
+开发过程中请谨慎对待 **"游离状态"** - 也就是没有外部引用的 - `Promise`。
+虽然对 NodeJs 来说，可以通过对于 `process` 的 `unhandledRejection` 事件进行监听来处理没有被处理的 rejected Promise。
+但这种用法会失去对于 `Promise` 执行状态的追踪，使得代码的容错水平降低。
 
 ### await 一个非 Promise 值
 
@@ -292,7 +303,9 @@ sequence done in 4318 ms
 
 然而开发中，我们经常需要并行执行多个 Promise。
 比如典型的网络请求情形，一般来说我们需要同时发出多个网络请求，并在所有请求返回时进行下一步操作。
-如果用上面的顺序执行方案的话，由于不同的 Promise 之间并没有依赖，我们可以并行的方式执行他们。
+如果用上面的顺序执行方案的话，JavaScript 的非阻塞特性没有被充分利用。
+
+如果不同的 Promise 之间并没有依赖，就可以用并行的方式执行他们。
 
 ```javascript
 async function parallel() {
