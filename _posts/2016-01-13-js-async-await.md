@@ -20,14 +20,14 @@ icon: file-o
 此特性依赖于新加入ES6 的 generator 和 Promise 特性。
 开发者可以组合这两个特性，以类似于同步的方式写出优美的非同步的代码。
 
-## TL;DR
-async 函数是一个返回值为 Promise 的函数。借助生成器我们可以不用回调函数嵌套的方式编写非同步代码。
+这篇文章将以 `async/await` 的转译过程开始介绍这个特性的实现原理，并在之后列举几个在开发中经常碰到的问题。
 
-## async/await 转译原理
-`async/await` 这个便利的特性背后有着并不简单的原理。
-如果没有深入了解过它的实现原理，在开发过程中有可能会碰到奇奇怪怪的问题。
+### TL;DR
+> async 函数是一个返回值为 Promise 的函数。借助生成器我们可以不用回调函数嵌套的方式编写非同步代码。
 
-我的建议是，为了更有信心的使用这个特性，我们有必要简单了解一下 `async/await` 是怎么工作的。
+## async/await 转译过程
+`async/await` 这个便利的特性背后有着一个精巧的实现原理。
+我的建议是，为了更有信心的使用这个特性，我们有必要简单了解一下 `async/await` 是如何转译、工作的。
 
 `async/await` 本身可以看作 Promise + generator 的语法糖。
 它的关键在于 `spawn` 函数。
@@ -74,7 +74,7 @@ function spawn(genF, self) {
 4. 当生成器执行完毕时，把最后的结果放入 `resovle` 函数的调用中。
 
 值得注意的是，为了防止生成器 `yield` 的值不是一个 `Promise`，上面的代码中我们把这个值放入
-`Promise.resolve(next.value)` 中，以保持代码的连贯性。
+`Promise.resolve(next.value)` 中，以保持代码的连贯性。这一点在文章稍后也有提到。
 
 ### 实际调用例子：
 
@@ -120,17 +120,17 @@ async function <name>?<argumentlist><body>
 function <name>?<argumentlist>{ return spawn(function*() <body>, this); }
 ```
 
-`async` 函数的大体转移原理如上，不过实际的转译工具对于生成器也有额外的转译过程和运行时需要添加的额外依赖。
+`async` 函数的大体转移原理如上，不过实际的转译工具对于生成器也有额外的转译过程（比如用循环迭代代替递归）和运行时需要添加的依赖。
 比如 `babel` 使用 facebook 的 [`regenerater runtime`](https://babeljs.io/docs/usage/polyfill/)，这里不多做赘述。
 
 -----
 ## PITFALLS!
-实际项目使用中，我由于开始不熟悉 `async/await` 的原理而踩到很多坑。
-这里列一下我所总结的使用这个特性时需要注意的点:
+实际项目使用中，本人由于刚上手时不熟悉 `async/await`，踩到很多坑。
+这里列一下我总结的使用这个特性时需要注意的点:
 
 ### 警惕 "Race condition"
 使用 `async/await` 的一个常见错误是把 `async` 函数内的调用看作是同步的。
-实际情况是，在每个 `await` 开始到下一个 `await` 之前，程序才是同步的。
+实际情况是，在每个 `await` 开始到下一个 `await` 之前，程序的执行才是同步的。
 这一点在 `async` 函数内部修改外部的状态时需要格外小心。比如下面的例子：
 
 ```javascript
@@ -147,10 +147,9 @@ foo(slowURI); // 返回较慢
 foo(fastURI); // 返回较快
 
 // 视图最终被渲染为 slowURI 的内容
-
 ```
 
-开发过程中这是我经常碰到的一个问题:
+这是我开发过程中经常碰到的一个问题:
 如果第一次的调用返回比较慢，就会将视图渲染为第一次的结果，然而这显然不是我们想要的。
 
 #### 比较简单的解决方案是：
@@ -177,6 +176,46 @@ foo(fastURI); // 返回较快
 ```
 
 ### 正确处理 async 函数中的异常
+根据转译过程的代码看出，想要让 `async` 函数中的 `Promise` 抛出的异常正常的被捕捉，一定要在调用
+Promise 的时候与 `await` 组合。
+
+如下面的代码所示：
+
+```javascript
+function testExceptions() {
+  async function foo() {
+    throw 'some error';
+  }
+
+  // 异常未被捕获
+  try {
+    foo();
+  } catch(e) {
+    console.log("normal try/catch" + e);
+  }
+
+  // 异常未被捕获
+  (async () => {
+    try {
+      foo();
+    } catch(e) {
+      console.log("async try/catch without await" + e);
+    }
+  })();
+
+  // 异常被捕获
+  (async () => {
+    try {
+      await foo();
+    } catch(e) {
+      console.log("async try/catch with await" + e);
+    }
+  })();
+}
+```
+
+谨记一点：`async` 函数中的 `Promise` 如果不是跟 `await` 组合，那么他的返回值还是一个 `Promise`。
+开发过程中请谨慎对待"游离状态"的 `Promise`。因为这种用法会失去对于 `Promise` 执行状态的追踪。
 
 ### await 一个非 Promise 值
 
@@ -215,14 +254,79 @@ async function foo() {
 ```
 
 ### 并行（parallel）执行多个 async 函数
+利用 `async` 函数我们可以方便的顺序执行 Promise。比如下面的例子：
 
-## 图比肯忒牛德
+```javascript
+// 返回一个在 milliseconds 毫秒后完成的一个 Promise
+function delay(milliseconds, index) {
+  return new Promise(res => {
+    setTimeout(() => {
+      res(`[${index}]: Res after ${milliseconds} milliseconds`);
+    }, milliseconds);
+  });
+}
 
+// 顺序执行
+async function sequence() {
+  const start = new Date();
+  for (let i = 0; i < 10; i ++) {
+    console.log(`${await delay(Math.random() * 1000, i)}`);
+  }
+  console.log(`sequence done in ${new Date() - start} ms`);
+}
+
+/* 输出
+[0]: Res after 986.4941246341914 milliseconds
+[1]: Res after 333.2838623318821 milliseconds
+[2]: Res after 354.3416520114988 milliseconds
+[3]: Res after 834.6803605090827 milliseconds
+[4]: Res after 215.9734272863716 milliseconds
+[5]: Res after 221.03742230683565 milliseconds
+[6]: Res after 114.20689150691032 milliseconds
+[7]: Res after 28.70347397401929 milliseconds
+[8]: Res after 524.5535324793309 milliseconds
+[9]: Res after 669.4943546317518 milliseconds
+sequence done in 4318 ms
+*/
+```
+
+然而开发中，我们经常需要并行执行多个 Promise。
+比如典型的网络请求情形，一般来说我们需要同时发出多个网络请求，并在所有请求返回时进行下一步操作。
+如果用上面的顺序执行方案的话，由于不同的 Promise 之间并没有依赖，我们可以并行的方式执行他们。
+
+```javascript
+async function parallel() {
+  const delays = [];
+  const start = new Date();
+  for (let i = 0; i < 10; i ++) {
+    delays.push(delay(Math.random() * 1000));
+  }
+  console.log(await Promise.all(delays));
+  console.log(`parallel done in ${new Date() - start} ms`);
+}
+
+/*
+[ '[0]: Res after 193.9734136685729 milliseconds',
+  '[1]: Res after 323.2925720512867 milliseconds',
+  '[2]: Res after 935.3614274878055 milliseconds',
+  '[3]: Res after 422.59012744762003 milliseconds',
+  '[4]: Res after 318.91681230627 milliseconds',
+  '[5]: Res after 39.97510578483343 milliseconds',
+  '[6]: Res after 616.469515254721 milliseconds',
+  '[7]: Res after 696.0562060121447 milliseconds',
+  '[8]: Res after 859.5389637630433 milliseconds',
+  '[9]: Res after 473.90571935102344 milliseconds' ]
+parallel done in 938 ms
+*/
+```
+
+并行执行的诀窍在于 [`Promise.all`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) 方法。
+我们需要事先把需要并行的 Promise 放入一个数组内，然后传入这个方法。
+当所有的 Promise 执行完毕后，`all` 会把所有 Promise 的结果按顺序放入最终结果的数组内。
 
 -----
 ## 参考资料
-- http://tc39.github.io/ecmascript-asyncawait
-- http://www.html5rocks.com/en/tutorials/es6/promises
-- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/then
-- http://www.2ality.com/2015/03/es6-generators.html
-- http://babeljs.io/repl/
+- [TC39 asyn/await proposal](http://tc39.github.io/ecmascript-asyncawait)
+- [HTML5 rocks Promise tutorial](http://www.html5rocks.com/en/tutorials/es6/promises)
+- [MDN Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
+- [Babel Online REPL](http://babeljs.io/repl/)

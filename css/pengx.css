@@ -57,12 +57,6 @@ html, body, div.wrapper {
   background-color: #F9F9F9;
 }
 
-/* 段落样式 */
-.paragraph {
-  font-size: 15px;
-  text-indent: 2em;
-}
-
 /* font-awesome post信息按钮样式 */
 .fa fa-folder-open, .fa fa-tags, .fa fa-calendar {
   color:#A84365;
@@ -86,11 +80,12 @@ pre code {
 }
 
 blockquote {
-  font-size: 15px;
+  font-size: 14px;
+  color: #666;
 }
 
 blockquote p {
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.8;
 }
 .typo blockquote p {
