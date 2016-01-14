@@ -20,6 +20,9 @@ icon: file-o
 此特性依赖于新加入ES6 的 generator 和 Promise 特性。
 开发者可以组合这两个特性，以类似于同步的方式写出优美的非同步的代码。
 
+## TL;DR
+async 函数是一个返回值为 Promise 的函数。借助生成器我们可以不用回调函数嵌套的方式编写非同步代码。
+
 ## async/await 转译原理
 `async/await` 这个便利的特性背后有着并不简单的原理。
 如果没有深入了解过它的实现原理，在开发过程中有可能会碰到奇奇怪怪的问题。
@@ -101,9 +104,12 @@ function myAsyncFunction2() {
   Promise.resolve(123).then(value => {
     return p1(value);
   });
+
+  // 注意，此函数的返回类型为 Promise(Promise)，但 Promise 对象在调用 Promise.resolve 方法时
+  // 会追随给定的 Promise 执行到 resolve/reject 为止。因此在使用上和 myAsyncFunction 是等效的。
 }
 ```
-上面的例子比价简单，不过还是能大概的看出使用 `async/await` 后代码显得更清晰易懂。
+上面的例子比较简单，不过还是能大概的看出使用 `async/await` 后代码显得更清晰易懂。
 
 总的来讲，`async/await` 语法就是把 `async` 函数替换成一个生成器函数，并把函数内的 `await`
 替换为 `yield`，再将函数作为参数传入 `spawn` 函数中。也就是说，隐含的转移过程为：
@@ -171,6 +177,42 @@ foo(fastURI); // 返回较快
 ```
 
 ### 正确处理 async 函数中的异常
+
+### await 一个非 Promise 值
+
+例子：
+
+```javascript
+function bar() {
+  return Math.random(2) > 1 ? 123; somePromise;
+}
+
+async function foo() {
+  await bar();
+}
+```
+
+在之前的转译过程解释中有提到，`await` 的值实际会被包裹在一个 `Promise.resolve()` 中。
+因此上面的代码可以正常工作。
+
+#### 注意
+Promise.resolve(somePromise) 等效于 somePromise。
+
+> [*Promise.resolve*](Promise.resolve(value)):
+Returns a Promise object that is resolved with the given value.
+If the value is a thenable (i.e. has a then method),
+the returned promise will "follow" that thenable,
+adopting its eventual state; otherwise the returned promise will be fulfilled with the value.
+**Generally, if you want to know if a value is a promise or not - Promise.resolve(value)
+it instead and work with the return value as a promise.**
+
+类似的，下面的代码也可正常工作：
+
+```javascript
+async function foo() {
+  return somePromise; // 没有调用 await
+}
+```
 
 ### 并行（parallel）执行多个 async 函数
 

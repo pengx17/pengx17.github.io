@@ -198,7 +198,7 @@ figcaption {
 }
 
 strong, b {
-  font-weight: bold;
+  font-weight: 600;
   color: #000;
 }
 
