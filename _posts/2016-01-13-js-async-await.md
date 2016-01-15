@@ -234,7 +234,7 @@ function testExceptions() {
 
 ```javascript
 function bar() {
-  return Math.random(2) > 1 ? 123; somePromise;
+  return Math.random() * 2 > 1 ? 123; somePromise;
 }
 
 async function foo() {
