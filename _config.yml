@@ -1,12 +1,12 @@
 permalink: /:categories/:year/:month/:day/:title
 
 exclude: [".rvmrc", ".rbenv-version", "README.md", "Rakefile", "changelog.md"]
-highlighter: pygments
+highlighter: rouge
 incremental: false
 paginate: 4
 
 # To be removed when github pages uses Jekyll 3
-pygments: true
+rouge: true
 # enable github favored Markdown
 markdown: redcarpet
 redcarpet:

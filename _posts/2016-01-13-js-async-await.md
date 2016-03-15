@@ -5,7 +5,7 @@ description: blog
 title: "ES7 async/await 使用剖析"
 categories: [frontend]
 tags: [javascript, es6]
-icon: file-o
+icon: code
 ---
 
 ## 简介
