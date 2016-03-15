@@ -92,47 +92,44 @@ blockquote p {
 	margin-bottom: 0em;
 }
 
-/* 覆盖bootstrap导航条设置 */
-.navbar  a.navbar-brand {
-  height: auto;
-}
-
-.navbar .col-md-8 {
-  -webkit-transition: all 0.4s ease-in-out;
-     -moz-transition: all 0.4s ease-in-out;
-       -o-transition: all 0.4s ease-in-out;
-          transition: all 0.4s ease-in-out;
-}
-
-.navbar .col-md-8:hover {
-  /*background: 180px url('/image/giant-head.png') no-repeat;*/
-}
-
-.navbar ul.nav {
-  padding: 5px 20px 0px;
-  height:auto;
-}
-
-.navbar>.container{
-  padding-left: 0px;
-  padding-right: 0px;
-  border-left: none;
-  border-right: none;
+.header-container {
   width: 100%;
+  display: flex;
+  justify-content: center;
+  border-bottom: 1px solid #e7e7e7;
+  margin-bottom: 20px;
 }
 
-.navbar>.container ul li{
-  float: left;
+.header-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  flex: 1;
+  max-width: 800px;
 }
 
-/* 覆盖导航条激活菜单的背景色设置 */
-.nav>li>a, .nav>li>a:hover, .nav>li>a:focus {
-  background-color: transparent;
-  box-shadow:none;
+@media screen and (max-width: 400px) {
+  .header-content {
+    justify-content: center;
+  }
+
+  .header-content > .navigation-items {
+    width: 100%;
+    justify-content: space-around;
+  }
 }
 
-.navbar .nav>li.active>a {
-  color:#EC6197;
+.header-content > .brand {
+  padding: 0 10px;
+}
+
+.header-content > .navigation-items {
+  display: flex;
+  align-items: center;
+}
+
+.navigation-items > div {
+  padding: 10px;
 }
 
 /* 覆盖typo.css中ul默认的margin-left属性 */
