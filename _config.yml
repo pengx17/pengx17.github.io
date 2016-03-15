@@ -5,11 +5,9 @@ highlighter: rouge
 incremental: false
 paginate: 4
 
-# To be removed when github pages uses Jekyll 3
-rouge: true
 # enable github favored Markdown
-markdown: redcarpet
-redcarpet:
+markdown: kramdown
+kramdown:
   input: GFM
 
 gems:
