@@ -8,4 +8,4 @@ tags: [Firebase, reactive]
 icon: code
 ---
 
-<iframe src='https://reactive-ui.firebaseapp.com' style='width: 100%; height: 100%'></iframe>
+<iframe src='https://reactive-ui.firebaseapp.com' style='width: 100%; min-height: 500px;'></iframe>
